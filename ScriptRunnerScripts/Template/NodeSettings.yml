@@ -1,0 +1,25 @@
+DatumConfiguration:
+  NodeName: '[x={ $Node.ComputerName } =]'
+  Environment: '[x={ $File.Directory.BaseName } =]'
+  Role: ''
+  Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
+  Location: ''
+  Baseline: ''
+
+ScriptRunnerConfiguration:
+  -
+      name: NodeName
+      dependsOn: Environment
+      type: filename
+  -
+      name: Environment
+      type: foldername
+  -
+      name: Role
+      type: variable
+  -
+      name: Location
+      type: variable
+  -
+      name: Baseline
+      type: variable

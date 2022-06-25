@@ -1,0 +1,32 @@
+$xml.root.entities[6].entity[-1].id
+
+ClassKey    : paramvalue
+ID          : 78
+GUID        : 61b2465c-f4e9-43e3-b01c-bbcfbce5af99
+LastChanged : 2022-05-27 20:55:24Z
+Created     : 2022-05-27 20:55:15Z
+property    : {DisplayName, MyAction, MyParamProxy, StringVal}
+
+# Get Parameter Entity
+
+$xml.SelectSingleNode("//entity[@ClassKey='paramproxy' and ./property[@name='ExtRef'] and ./property[contains(.,'test.ps1')]]")
+
+
+    <entity ClassKey="paramproxy" ID="155" GUID="8effda94-4a21-461b-8bea-79e54848883b" LastChanged="2022-05-27 20:50:32Z" Created="2022-05-27 20:50:32Z">
+      <property name="DisplayName">$test</property>
+      <property name="ExtRef">expl.common.test.ps1#test</property>
+      <property name="LastMatched">2022-05-27 20:50:32Z</property>
+    </entity>
+
+$xml.SelectSingleNode("//entity[@ClassKey='scriptproxy' and contains(ExtRef,'test.ps1')]")
+
+
+$xml.SelectSingleNode("//entity[@ClassKey='scriptproxy' and ./property[@name='ExtRef'] and ./property[contains(.,'test.ps1')]]")
+
+    <entity ClassKey="scriptproxy" ID="298" GUID="697a4077-c05f-4967-b32e-b8e17c499059" LastChanged="2022-05-27 20:50:32Z" Created="2022-05-27 20:50:11Z">
+      <property name="DisplayName">EXPL\Common\Test.ps1</property>
+      <property name="ExtRef">expl.common.test.ps1</property>
+      <property name="LastMatched">2022-05-27 20:50:32Z</property>
+      <property name="LastEdited">2022-05-27 20:50:30Z</property>
+    </entity>
+$xml.SelectSingleNode("//entity[@ClassKey='paramvalue' and @ID=78]")
