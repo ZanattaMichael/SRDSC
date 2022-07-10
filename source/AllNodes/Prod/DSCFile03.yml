@@ -8,7 +8,7 @@ Baseline: Server
 ComputerSettings:
   Name: '[x={ $Node.NodeName }=]'
   Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
-
+  
 NetworkIpConfiguration:
   Interfaces:
     - InterfaceAlias: DscWorkshop 0

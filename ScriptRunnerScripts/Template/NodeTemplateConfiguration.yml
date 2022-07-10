@@ -1,3 +1,11 @@
+NodeName: '%%SR_PARAM_OVERRIDE%%'
+Environment: '[x={ $File.Directory.BaseName } =]'
+Role: '%%SR_PARAM%%'
+Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
+Location: '%%SR_PARAM%%'
+Baseline: '%%SR_PARAM%%'
+TargetComputerName: '%%SR_PARAM%%'
+DSCGUID: ''
 
 ComputerSettings:
   Name: '[x={ $Node.NodeName }=]'
@@ -5,12 +13,12 @@ ComputerSettings:
 
 NetworkIpConfiguration:
   Interfaces:
-    - InterfaceAlias: DscWorkshop 0
-      IpAddress: 192.168.111.101
+    - InterfaceAlias: 0
+      IpAddress: '%%SR_PARAM%%'
       Prefix: 24
-      Gateway: 192.168.111.50
+      Gateway: '%%SR_PARAM%%'
       DnsServer:
-        - 192.168.111.10
+        - '%%SR_PARAM%%'
       DisableNetbios: true
 
 PSDscAllowPlainTextPassword: True
