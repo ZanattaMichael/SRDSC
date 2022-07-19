@@ -14,11 +14,14 @@ Function Set-ModuleParameters {
 
         ScriptRunner = [PSCustomObject]@{
             NodeTemplateFile = '{0}\Template\NodeTemplateConfiguration.yml' -f $ScriptRunnerModulePath                           
+            NodeRegistrationFile = '{0}\Configuration\NodeRegistration.clixml' -f $ScriptRunnerModulePath
         }
     
         DSCPullServer = [PSCustomObject]@{
+            DSCPullServerName = 'SCRIPTRUNNER01'
+            DSCPullServerMOFPath = 'C:\Interpub\DSC\MOFS'
+            DSCPullServerResourceModules = 'C:\Interpub\Somepath'
             DSCPullServerWebAddress = 'http://SCRIPTRUNNER01:8080'
-            MOFNodeRegistrationFile = '{0}\Configuration\MOFNodeRegistrationFile.clixml' -f $ScriptRunnerModulePath
         }
 
         DatumModule = [PSCustomObject]@{
@@ -26,7 +29,7 @@ Function Set-ModuleParameters {
             RenamedMOFOutput = '{0}\output\RenamedMOF' -f $DatumModulePath
             ConfigurationFile = '{0}\Datum.yml' -f $DatumModulePath
             CompiledMOFOutput = '{0}\output\MOF' -f $DatumModulePath
-            CompileRequiredModulesOutput = '{0}\output\RequiredModules' -f $DatumModulePath
+            CompileCompressedModulesOutput = '{0}\output\CompressedModules' -f $DatumModulePath
             BuildPath = '{0}\build.ps1' -f $DatumModulePath
         }
     

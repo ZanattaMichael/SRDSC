@@ -23,7 +23,6 @@ function Publish-SRActionScript {
 
     $formattedDatumConfig = Format-DatumConfiguration @formattedDatumParams
 
-    # Invokes-Onboarding of the machine into DSC
     # Get's GUID
     # Write-s GUID to seperate configuration database storing names with registration ID's (clixml)
     # This is needed so when the mof files are generated, they can be renamed and copied to the SRDSC Pull Server

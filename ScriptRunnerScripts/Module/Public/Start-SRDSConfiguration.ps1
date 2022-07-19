@@ -8,15 +8,21 @@ function Start-SRDSConfiguration {
         [Switch]
         $ResolveDependency
     )
-    
+
     #
     #  Start the Build Process
 
     . $Global:ScriptRunner.DatumModule.BuildPath @PSBoundParameters
 
+    # If the MOF Registration File is missing, datum nodes aren't being deployed.
+    if (-Not(Test-Path -LiteralPath $Global:ScriptRunner.ScriptRunner.NodeRegistrationFile)) {
+        Throw "Missing NodeRegistrationFile"
+    }
+
     #
     # Once the build process has been completed, load the MOF Node Registration File
-    $MOFNodeRegistrationFile = Import-Clixml -LiteralPath $Global:ScriptRunner.DSCPullServer.MOFNodeRegistrationFile
+
+    $NodeRegistrationFile = Import-Clixml -LiteralPath $Global:ScriptRunner.ScriptRunner.NodeRegistrationFile
 
     # Create RenamedMOFOutput directory in the output directory.
     
@@ -38,7 +44,7 @@ function Start-SRDSConfiguration {
         $item = $_
 
         # Match the NodeName to the FileName.
-        $matchedItem = $MOFNodeRegistrationFile | Where-Object { $_.NodeName -eq $item.Name.Split('.')[0] }
+        $matchedItem = $NodeRegistrationFile | Where-Object { $_.NodeName -eq $item.Name.Split('.')[0] }
 
         # Don't copy any MOF files that arn't stored within the configuration file.
         if ($matchedItem.count -eq 0) { return }
@@ -47,7 +53,7 @@ function Start-SRDSConfiguration {
         # This needs to include the .mof file and .mof.checksum file.
         $destinationFileName = "{0}\{1}.{2}" -f 
             $MOFDestinationDir.FullName
-            $matchedItem.registrationId,
+            $matchedItem.ConfigurationID,
             $item.name.split('.')[1..$item.name.split('.').Length] -join '.'
 
         # Copy the file
@@ -56,8 +62,16 @@ function Start-SRDSConfiguration {
     }
 
     #
-    # Once that's completed, copy MOFFiles and Resource Directories over to the DSCPullServer
+    # Once that's completed, copy the MOFFiles and Resource Directories over to the DSCPullServer
 
-    #TODO: Add logic to copy mof configurations to DSC pull server.
+    Get-ChildItem -LiteralPath $MOFDestinationDir.FullName -File | Copy-Item -Destination $Global:ScriptRunner.DSCPullServer.DSCPullServerMOFPath -Force
+
+    #
+    # Now copy the resouce modules to the DSCPullServer
+
+    Get-ChildItem -LiteralPath $Global:ScriptRunner.DatumModule.CompileCompressedModulesOutput | Copy-Item -Destination $Global:ScriptRunner.DSCPullServer.DSCPullServerResourceModules -Force
+
+    #
+    # Complete
 
 }
