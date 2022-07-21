@@ -1,8 +1,10 @@
-
-    %%PARAMETER%%
+[CmdletBinding()]
+param (
+    #%%PARAMETER%%
+)
 
 $NodeFilePath = '%%NODEFILEPATH%%'
-$NodeTemplateFileConfigurationPath = '%%AD_SOFTWARE%%'
+$NodeTemplateFileConfigurationPath = '%%NODETEMPLATECONFIGURATION%%'
 
 #
 #
@@ -22,7 +24,7 @@ $ParamtersToSubstitute | ForEach-Object {
     # If it does, good news!
     $lookupVar = Get-Variable -Name $_.Name -ErrorAction Stop
 
-    # Perform a string intpolation
+    # Perform a string interpolation
     $NodeTemplateFile[$_.IndexNumber] = 
         $NodeTemplateFile[$_.IndexNumber].Replace(
             $_.YAMLValue, 

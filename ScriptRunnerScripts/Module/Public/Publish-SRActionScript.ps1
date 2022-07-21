@@ -29,14 +29,18 @@ function Publish-SRActionScript {
 
     # TODO: Also add SR module deploy script as well.
 
-
-
     #
     # Items that are specificed in the NodeTemplateConfiguration, with SR_PARAM_OVERRIDE have higher precidence
     # then datum configuration items.
     # A notable example of this is NodeName, which needs to be prompted for since it pertains to existing items.
-        
-    #TODO: Finish creating DSC script.
-    
+
+    # Create the parameters
+    $paramsString = $formattedDatumConfig | ConvertTo-PowerShellParameter
+
+    # Load the New-VirtualMachine.template.ps1 file.
+    $templateFile = Get-Content -LiteralPath $Global:ScriptRunner.ScriptTemplates.NewVMTemplate
+
+    # Interpolate the parameters
+    $templateFile -replace '#%%PARAMETER%%', $paramsString
 
 }

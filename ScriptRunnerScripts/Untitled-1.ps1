@@ -1,29 +1,15 @@
-function Resolve-YamlItem($FilePath)
-    {
+Set-ModuleParameters -DatumModulePath 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner' -ScriptRunnerModulePath 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner\ScriptRunnerScripts\Module'
+$DatumConfiguration = Read-DatumConfiguration -DatumConfigurationFile $Global:ScriptRunner.DatumModule.ConfigurationFile -DatumConfigurationPath $Global:ScriptRunner.DatumModule.ConfigurationPath
+$NodeTemplateConfiguration = Get-NodeTemplateConfigParams -TemplateFilePath $Global:ScriptRunner.ScriptRunner.NodeTemplateFile
 
-        Get-ChildItem -LiteralPath $FilePath -Recurse -Filter *.yml | Select-Object @{
-            Name='ItemPath'
-            Exp={
-                $_.Fullname.replace('.yml','').replace($FilePath,'')
-            }
-        },
-        @{
-            Name = "TopLevelParent"
-            Exp = {
-                ($_.Fullname.replace($FilePath,'') -split '\\')[1]
-            }
-        },
-        @{
-            Name='ItemName'
-            Exp={
-                $_.Name.replace('.yml','')
-            }
-        },
-        @{
-            Name='Depth'
-            Exp={
-                ($_.Fullname.replace($FilePath,'') -split '\\').Count - 1
-            }
-        }
+$formattedDatumParams = @{
+    DatumConfiguration = $DatumConfiguration
+    NodeTemplateConfiguration = $NodeTemplateConfiguration
+}
 
-    }
+$formattedDatumConfig = Format-DatumConfiguration @formattedDatumParams
+
+
+$DatumConfiguration
+
+D:\Git\DSC-ScriptRunner\DSC-ScriptRunner\ScriptRunnerScripts\Template\NodeTemplateConfiguration.yml

@@ -5,6 +5,6 @@
 # Check if DSC is installed, stop
 # Download DSC Pipeline
 
-Configuration 
+#Configuration 
 
 # Create SR, scheduled actions (disabled) to 

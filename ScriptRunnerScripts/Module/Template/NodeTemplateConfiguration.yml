@@ -4,8 +4,6 @@ Role: '%%SR_PARAM%%'
 Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
 Location: '%%SR_PARAM%%'
 Baseline: '%%SR_PARAM%%'
-TargetComputerName: '%%SR_PARAM%%'
-DSCGUID: ''
 
 ComputerSettings:
   Name: '[x={ $Node.NodeName }=]'

@@ -15,6 +15,9 @@ Function Set-ModuleParameters {
         ScriptRunner = [PSCustomObject]@{
             NodeTemplateFile = '{0}\Template\NodeTemplateConfiguration.yml' -f $ScriptRunnerModulePath                           
             NodeRegistrationFile = '{0}\Configuration\NodeRegistration.clixml' -f $ScriptRunnerModulePath
+            ScriptTemplates = [PSCustomObject]@{
+                NewVMTemplate = '{0}\Template\New-VirutalMachine.template.ps1' -f $ScriptRunnerModulePath
+            }
         }
     
         DSCPullServer = [PSCustomObject]@{
@@ -25,9 +28,9 @@ Function Set-ModuleParameters {
         }
 
         DatumModule = [PSCustomObject]@{
-            ConfigurationPath = $DatumModulePath
+            ConfigurationPath = '{0}\' -f $DatumModulePath
             RenamedMOFOutput = '{0}\output\RenamedMOF' -f $DatumModulePath
-            ConfigurationFile = '{0}\Datum.yml' -f $DatumModulePath
+            ConfigurationFile = '{0}\source\Datum.yml' -f $DatumModulePath
             CompiledMOFOutput = '{0}\output\MOF' -f $DatumModulePath
             CompileCompressedModulesOutput = '{0}\output\CompressedModules' -f $DatumModulePath
             BuildPath = '{0}\build.ps1' -f $DatumModulePath
