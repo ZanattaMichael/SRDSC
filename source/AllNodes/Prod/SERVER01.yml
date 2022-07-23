@@ -1,9 +1,9 @@
-NodeName: '%%SR_PARAM_OVERRIDE%%'
+NodeName: 'SERVER01'
 Environment: '[x={ $File.Directory.BaseName } =]'
-Role: '%%SR_PARAM%%'
+Role: 'DomainController'
 Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
-Location: '%%SR_PARAM%%'
-Baseline: '%%SR_PARAM%%'
+Location: 'Frankfurt'
+Baseline: 'Desktop'
 
 ComputerSettings:
   Name: '[x={ $Node.NodeName }=]'
@@ -12,11 +12,10 @@ ComputerSettings:
 NetworkIpConfiguration:
   Interfaces:
     - InterfaceAlias: 0
-      IpAddress: '%%SR_PARAM%%'
+      IpAddress: '192.168.0.1'
       Prefix: 24
-      Gateway: '%%SR_PARAM%%'
+      Gateway: '192.168.0.1'
       DnsServer:
-        - '%%SR_PARAM%%'
         - '%%SR_PARAM%%'
       DisableNetbios: true
 

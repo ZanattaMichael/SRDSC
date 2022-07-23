@@ -9,7 +9,6 @@ $formattedDatumParams = @{
 
 $formattedDatumConfig = Format-DatumConfiguration @formattedDatumParams
 
-
 $DatumConfiguration
 
 D:\Git\DSC-ScriptRunner\DSC-ScriptRunner\ScriptRunnerScripts\Template\NodeTemplateConfiguration.yml

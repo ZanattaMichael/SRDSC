@@ -27,14 +27,18 @@ function Resolve-DatumItem
 
         $tempPath = $DatumPath
         Do {
+            # (\$\w+).(\w+)
             $items.Add(@{
                 ItemPath = '\{0}' -f $tempPath
                 ItemName = Split-Path $tempPath -Leaf
+                ItemScriptPath = ('\{0}' -f $tempPath -replace '(?<=\\)[\w\$\(\)]+\.(\w+)\)', '%$1').Replace('%','$')
                 TopLevelParent = ('{0}' -f $tempPath -split '\\')[0]
                 Depth = ($tempPath -split '\\').Count
                 isVar = (Split-Path $tempPath -Leaf) -like '$($*'
                 values = $null
             })
+
+
             $tempPath = Split-Path $tempPath
         } Until ([String]::IsNullOrEmpty($tempPath))
 

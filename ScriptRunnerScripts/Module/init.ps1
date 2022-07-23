@@ -1,3 +1,8 @@
-(Split-Path $MyInvocation.MyCommand.Path -Parent) | Get-ChildItem -Recurse -File | Where-Object {$_.BaseName -ne 'init'} | ForEach-Object {
+$parent = (Split-Path $MyInvocation.MyCommand.Path -Parent)
+Get-ChildItem -LiteralPath (Join-Path $parent -ChildPath 'Private') -Recurse -File | ForEach-Object {
+    . $_.FullName 
+}
+
+Get-ChildItem -LiteralPath (Join-Path $parent -ChildPath 'Public') -Recurse -File | ForEach-Object {
     . $_.FullName 
 }

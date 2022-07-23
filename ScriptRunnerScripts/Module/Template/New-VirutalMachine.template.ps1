@@ -3,8 +3,8 @@ param (
     #%%PARAMETER%%
 )
 
-$NodeFilePath = '%%NODEFILEPATH%%'
-$NodeTemplateFileConfigurationPath = '%%NODETEMPLATECONFIGURATION%%'
+$NodeFilePath = "%%NODEFILEPATH%%"
+$NodeTemplateConfigurationPath = "%%NODETEMPLATECONFIGURATION%%"
 
 #
 #
@@ -12,8 +12,8 @@ $ParameterNames = Get-ASTScriptParameters -ScriptPath $MyInvocation.MyCommand.Pa
 
 #
 # Get the NodeConfigurationPath Paramter Items
-$ParamtersToSubstitute = Get-NodeTemplateConfigParams -TemplateFilePath $NodeTemplateFileConfigurationPath
-$NodeTemplateFile = Get-Content -LiteralPath $NodeTemplateFileConfigurationPath
+$ParamtersToSubstitute = Get-NodeTemplateConfigParams -TemplateFilePath $NodeTemplateConfigurationPath
+$NodeTemplateFile = Get-Content -LiteralPath $NodeTemplateConfigurationPath
 
 #
 # Iterate through each of the NodeConfiguration Items and interpolate the items using the arrayIndex Property.
