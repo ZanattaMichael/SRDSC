@@ -18,7 +18,7 @@ function ConvertTo-PowerShellParameter {
 
         $authoritativeDatumConfiguration = $ConfigurationTemplates.DatumConfiguration | Where-Object { -not($_.isOverwritten) }
         $authoritativeTemplateConfiguration = $ConfigurationTemplates.TemplateConfiguration | Where-Object {
-            $_.name -notin $authoritativeDatumConfiguration.ParameterName
+            $_.ParameterName -notin $authoritativeDatumConfiguration.ParameterName
         }
         
         #
@@ -26,9 +26,10 @@ function ConvertTo-PowerShellParameter {
         # Exclude Duplicate items
         forEach ($configuration in $authoritativeTemplateConfiguration) {
             $null = $sb.AppendLine("`t[Parameter(Mandatory)]")
+            $null = $sb.AppendFormat("`t#`$Parameter_{0} = {1}`n", $configuration.ParameterName, $configuration.YAMLPath)
             $null = $sb.AppendFormat("`t[ValidateNotNullOrEmpty()]`n")
             $null = $sb.AppendLine("`t[String]")
-            $null = $sb.AppendFormat("`t`${0},`n", $configuration.Name)
+            $null = $sb.AppendFormat("`t`${0},`n", $configuration.ParameterName)
         }        
 
         #

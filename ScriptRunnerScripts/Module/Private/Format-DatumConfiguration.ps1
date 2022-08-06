@@ -30,7 +30,7 @@ function Format-DatumConfiguration {
                     Exp = { 
                         $ParameterName = ($_.ItemName -replace '(^\$\(\$Node.)','').Replace(')','')                        
                         [Array]$item = $NodeTemplateConfiguration | Where-Object {
-                            ($_.Name -eq $ParameterName) -and ($_.YAMLValue -eq '%%SR_PARAM_OVERRIDE%%')
+                            ($_.ParameterName -eq $ParameterName) -and ($_.YAMLValue -eq '%%SR_PARAM_OVERRIDE%%')
                         }
                         $item.count -gt 0
                     }

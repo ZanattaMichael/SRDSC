@@ -9,8 +9,23 @@ function Get-NodeTemplateConfigParams {
 
     $PropertyList = [System.Collections.Generic.List[PSCustomObject]]::New()
 
+    $TemplateFilePath = 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner\ScriptRunnerScripts\Module\Template\NodeTemplateConfiguration.yml'
+    $YAMLTemplate = Get-Content $TemplateFilePath | ConvertFrom-Yaml
+    $FormattedYAMLTemplate = Format-YAMLObject -YAMLObject $YAMLTemplate -ObjectName 'FormattedYAMLTemplate'
+    Find-YamlValue -YAMLObject $FormattedYAMLTemplate -ValueToFind '%%' | 
+        Sort-Object -Unique -Property Path | ForEach-Object {
+            $PropertyList.Add([PSCustomObject]@{
+                YAMLPath = $_.Path
+                YAMLValue = $_.Value
+                ParameterName = ($_.Path | ConvertYAMLPathTo-Parameter).ParameterLabel
+            })
+    }
+
+
+    <#
     $regex = [regex]::New("^(.+:)(()|( ))('%%.+%%')")
     $arrNumber = 0
+
     $Template = Get-Content $TemplateFilePath | ForEach-Object {
 
         # Parse the regex. Extract the name and the value.
@@ -34,6 +49,8 @@ function Get-NodeTemplateConfigParams {
         $arrNumber++
 
     }
+
+    #>
     
     $PropertyList
 
