@@ -6,6 +6,10 @@ function Get-ASTScriptParameters {
         $ScriptPath
     )
 
-    (Get-Command $ScriptPath).ScriptBlock.Ast.ParamBlock.Parameters.Name.Extent.Text
+    [PSCustomObject]@{
+        Parameters = (Get-Command $ScriptPath).ScriptBlock.Ast.ParamBlock.Parameters.Name.Extent.Text
+        YAML = 
+    }
+    
 
 }

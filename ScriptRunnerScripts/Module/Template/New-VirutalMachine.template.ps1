@@ -7,7 +7,7 @@ $NodeFilePath = "%%NODEFILEPATH%%"
 $NodeTemplateConfigurationPath = "%%NODETEMPLATECONFIGURATION%%"
 
 #
-#
+# Load the ParameterNames
 $ParameterNames = Get-ASTScriptParameters -ScriptPath $MyInvocation.MyCommand.Path
 
 #

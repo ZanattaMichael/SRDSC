@@ -25,8 +25,16 @@ function ConvertTo-PowerShellParameter {
         # Iterate through NodeTemplateConfiguration
         # Exclude Duplicate items
         forEach ($configuration in $authoritativeTemplateConfiguration) {
+
+            # Create a JSON structure containing the parametername with the lookup value.
+            # This makes it a lot easier to deseralize.
+            $YAMLObject = @{
+                Name = $configuration.ParameterName
+                LookupValue = $configuration.YAMLPath
+            } | ConvertTo-Json -Compress
+
             $null = $sb.AppendLine("`t[Parameter(Mandatory)]")
-            $null = $sb.AppendFormat("`t#`$Parameter_{0} = {1}`n", $configuration.ParameterName, $configuration.YAMLPath)
+            $null = $sb.AppendFormat("`t#YAMLData: {0}`n", $YAMLObject)
             $null = $sb.AppendFormat("`t[ValidateNotNullOrEmpty()]`n")
             $null = $sb.AppendLine("`t[String]")
             $null = $sb.AppendFormat("`t`${0},`n", $configuration.ParameterName)
