@@ -8,8 +8,6 @@ function Get-NodeTemplateConfigParams {
     )
 
     $PropertyList = [System.Collections.Generic.List[PSCustomObject]]::New()
-
-    $TemplateFilePath = 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner\ScriptRunnerScripts\Module\Template\NodeTemplateConfiguration.yml'
     $YAMLTemplate = Get-Content $TemplateFilePath | ConvertFrom-Yaml
     $FormattedYAMLTemplate = Format-YAMLObject -YAMLObject $YAMLTemplate -ObjectName 'FormattedYAMLTemplate'
     Find-YamlValue -YAMLObject $FormattedYAMLTemplate -ValueToFind '%%' | 

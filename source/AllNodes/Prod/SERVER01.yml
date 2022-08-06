@@ -1,32 +1,29 @@
-NodeName: 'SERVER01'
+NodeName: SERVER01
 Environment: '[x={ $File.Directory.BaseName } =]'
-Role: 'DomainController'
+Role: DomainController
 Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
-Location: 'Frankfurt'
-Baseline: 'Desktop'
-
+Location: Frankfurt
+Baseline: Desktop
 ComputerSettings:
   Name: '[x={ $Node.NodeName }=]'
   Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
-
 NetworkIpConfiguration:
   Interfaces:
-    - InterfaceAlias: 0
-      IpAddress: '192.168.0.1'
-      Prefix: 24
-      Gateway: '192.168.0.1'
-      DnsServer:
-        - '%%SR_PARAM%%'
-      DisableNetbios: true
-
-PSDscAllowPlainTextPassword: True
-PSDscAllowDomainUser: True
-
+  - InterfaceAlias: 0
+    IpAddress: 192.168.1.2
+    Prefix: 24
+    Gateway: 192.168.1.1
+    DnsServer:
+    - 8.8.8.8
+    - 8.8.8.8
+    DisableNetbios: true
+PSDscAllowPlainTextPassword: true
+PSDscAllowDomainUser: true
 LcmConfig:
   ConfigurationRepositoryWeb:
     Server:
       ConfigurationNames: '[x={ $Node.NodeName }=]'
-
 DscTagging:
   Layers:
-    - '[x={ Get-DatumSourceFile -Path $File } =]'
+  - '[x={ Get-DatumSourceFile -Path $File } =]'
+

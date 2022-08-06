@@ -8,7 +8,10 @@ function Get-ASTScriptParameters {
 
     [PSCustomObject]@{
         Parameters = (Get-Command $ScriptPath).ScriptBlock.Ast.ParamBlock.Parameters.Name.Extent.Text
-        YAML = 
+        YAMLData = Get-Content $ScriptPath | Where-Object {$_ -like '*#JSONData:*'} | ForEach-Object {
+            if (-not($_ -match '\#(JSONData:?)(?<json>.+)')) { return }
+            $Matches['json'] | ConvertFrom-Json
+        }
     }
     
 

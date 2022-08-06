@@ -30,6 +30,7 @@ Function Set-ModuleParameters {
         DatumModule = [PSCustomObject]@{
             ConfigurationPath = '{0}\' -f $DatumModulePath
             RenamedMOFOutput = '{0}\output\RenamedMOF' -f $DatumModulePath
+            SourcePath = '{0}\source\' -f $DatumModulePath
             ConfigurationFile = '{0}\source\Datum.yml' -f $DatumModulePath
             CompiledMOFOutput = '{0}\output\MOF' -f $DatumModulePath
             CompileCompressedModulesOutput = '{0}\output\CompressedModules' -f $DatumModulePath

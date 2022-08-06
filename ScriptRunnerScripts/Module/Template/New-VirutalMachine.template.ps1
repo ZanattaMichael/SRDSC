@@ -8,31 +8,48 @@ $NodeTemplateConfigurationPath = "%%NODETEMPLATECONFIGURATION%%"
 
 #
 # Load the ParameterNames
-$ParameterNames = Get-ASTScriptParameters -ScriptPath $MyInvocation.MyCommand.Path
+$ScriptParameterData = Get-ASTScriptParameters -ScriptPath $MyInvocation.MyCommand.Path
 
 #
 # Get the NodeConfigurationPath Paramter Items
 $ParamtersToSubstitute = Get-NodeTemplateConfigParams -TemplateFilePath $NodeTemplateConfigurationPath
-$NodeTemplateFile = Get-Content -LiteralPath $NodeTemplateConfigurationPath
+$FormattedYAMLTemplate = Get-Content -LiteralPath $NodeTemplateConfigurationPath | ConvertFrom-Yaml -Ordered
 
 #
 # Iterate through each of the NodeConfiguration Items and interpolate the items using the arrayIndex Property.
 # This simplifies the logic to a replacement, rather then a lookup and replace.
-$ParamtersToSubstitute | ForEach-Object {
 
-    # Perform a lookup of the variable to see if it exists
-    # If it does, good news!
-    $lookupVar = Get-Variable -Name $_.Name -ErrorAction Stop
+ForEach ($ParameterName in $ScriptParameterData.Parameters) {
 
-    # Perform a string interpolation
-    $NodeTemplateFile[$_.IndexNumber] = 
-        $NodeTemplateFile[$_.IndexNumber].Replace(
-            $_.YAMLValue, 
-            $lookupVar.value
-        )
+	# Perform a lookup to get the parameter value
+	$lookupVar = Get-Variable -Name $ParameterName.TrimStart('$') -ErrorAction Stop
+
+	# Perform a lookup in the parameter JSON data to see if it exists.
+	[array]$matched = $ScriptParameterData.YAMLData | Where-Object {
+		('${0}' -f $_.Name) -eq $ParameterName
+	}
+	
+    #
+    # If there is a match, associate the lookup according the metadata.
+    # and then continue.
+	if ($matched.count -eq 1) {
+        [ScriptBlock]::Create(('{0} = "{1}"' -f $matched.LookupValue, $lookupVar.value)).Invoke()
+        continue
+	}
+
+    #
+    # Otherwise, just perform a regualar lookup and replace.
+    [Array]$matched = $ParamtersToSubstitute | Where-Object {
+        ('${0}' -f $_.ParameterName) -eq $ParameterName
+    }
+
+	#
+	# Validate if there is a match. If not, skip!
+	if ($matched.count -eq 0) { continue }	
+    [ScriptBlock]::Create(('{0} = "{1}"' -f $Matched.YAMLPath, $lookupVar.value)).Invoke()
 
 }
 
 #
 # Write the output of the file
-$NodeTemplateFile | Set-Content -LiteralPath $NodeFilePath
+$FormattedYAMLTemplate | ConvertTo-Yaml | Set-Content -LiteralPath $NodeFilePath

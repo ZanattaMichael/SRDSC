@@ -195,34 +195,18 @@ Function Format-YAMLObject {
             #$newYAMLObject = [System.Collections.Generic.List[Object]]::new()
 
             #
-            # If the index of the array is zero, then don't add an index item to it.
-            # Otherwise, iterate through the index of the array.
-
-            if ($YAMLObject.Count -eq 1) {
+            # Iterate through each of the index items and call them
+            For($index = 0; $index -ne $YAMLObject.Count; $index++) {
 
                 $params = @{
-                    YAMLObject = $YAMLObject[0]
-                    YAMLLookupPath = '{0}' -f $ParentPath
+                    YAMLObject = $YAMLObject[$index]
+                    YAMLLookupPath = '{0}[{1}]' -f $ParentPath, $index
                 }
 
                 $newYAMLObject += Format-YAMLObject @params
 
-            } else {
-
-                #
-                # Iterate through each of the index items and call them
-                For($index = 0; $index -ne $YAMLObject.Count; $index++) {
-
-                    $params = @{
-                        YAMLObject = $YAMLObject[$index]
-                        YAMLLookupPath = '{0}[{1}]' -f $ParentPath, $index
-                    }
-
-                    $newYAMLObject += Format-YAMLObject @params
-    
-                }
-
             }
+
         }
 
         #

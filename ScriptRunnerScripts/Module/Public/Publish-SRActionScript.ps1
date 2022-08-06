@@ -40,12 +40,12 @@ function Publish-SRActionScript {
 
     # Interpolate the Node file path
     $nodeFilePath = ($DatumConfiguration | Where-Object {($_.TopLevelParent -eq 'AllNodes') -and ($null -ne $_.Values)})
-    $templateFile = $templateFile -replace '%%NODEFILEPATH%%', ('{0}\{1}.yml' -f $Global:ScriptRunner.DatumModule.ConfigurationPath, $nodeFilePath.ItemScriptPath)
+    $templateFile = $templateFile -replace '%%NODEFILEPATH%%', ('{0}\{1}.yml' -f $Global:ScriptRunner.DatumModule.SourcePath, $nodeFilePath.ItemScriptPath)
 
     # Interpolate the Template File path
     $templateFile = $templateFile -replace '%%NODETEMPLATECONFIGURATION%%', $Global:ScriptRunner.ScriptRunner.NodeTemplateFile
 
     # Write the template file to the designated output file path.
-    $templateFile | Out-File -FilePath $OutputFilePath -Append -Force
+    $templateFile | Out-File -FilePath $OutputFilePath -Force
 
 }
