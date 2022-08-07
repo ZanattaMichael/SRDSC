@@ -15,7 +15,7 @@ NetworkIpConfiguration:
     Gateway: 192.168.1.1
     DnsServer:
     - 8.8.8.8
-    - 8.8.8.8
+    - 8.8.4.4
     DisableNetbios: true
 PSDscAllowPlainTextPassword: true
 PSDscAllowDomainUser: true

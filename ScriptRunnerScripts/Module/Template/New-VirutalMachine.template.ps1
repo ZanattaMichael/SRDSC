@@ -52,4 +52,4 @@ ForEach ($ParameterName in $ScriptParameterData.Parameters) {
 
 #
 # Write the output of the file
-$FormattedYAMLTemplate | ConvertTo-Yaml | Set-Content -LiteralPath $NodeFilePath
+$FormattedYAMLTemplate | Format-YAML -Property $Global:ScriptRunner.DatumModule.YAMLSortOrder | ConvertTo-Yaml | Set-Content -LiteralPath $NodeFilePath

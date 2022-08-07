@@ -35,6 +35,20 @@ Function Set-ModuleParameters {
             CompiledMOFOutput = '{0}\output\MOF' -f $DatumModulePath
             CompileCompressedModulesOutput = '{0}\output\CompressedModules' -f $DatumModulePath
             BuildPath = '{0}\build.ps1' -f $DatumModulePath
+            YAMLSortOrder = @(
+                'NodeName'
+                'Environment'
+                'Role'
+                'Description'
+                'Location'
+                'Baseline'
+                'ComputerSettings'
+                'NetworkIpConfiguration'
+                'PSDscAllowPlainTextPassword'
+                'PSDscAllowDomainUser'
+                'LcmConfig'
+                'DscTagging'
+            )
         }
     
     }
