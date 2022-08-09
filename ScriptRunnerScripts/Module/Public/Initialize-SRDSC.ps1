@@ -15,6 +15,15 @@ function Initialize-SRDSC {
     $ErrorActionPreference = "Stop"
 
     #
+    # Create Configuration file to store the datum module information
+
+    $SRConfiguration = [PSCustomObject]@{
+        DatumModulePath = $DatumModulePath
+        ScriptRunnerModulePath = (Get-Module SRDSC).Path
+        ScriptRunnerScriptPath = 
+    }
+
+    #
     # Check PowerShell Window is evelated.
     if (-not(Test-isElevated)) {
         Throw "An Elevated PowerShell Window is required to Install and Initialize a Script Runner DSC Pull Server"
@@ -109,7 +118,8 @@ function Initialize-SRDSC {
     #
     # Create the Action and Scheduled Tasks in Script Runner
 
-    
+
+
 }
 
 #
