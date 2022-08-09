@@ -5,9 +5,15 @@ function Initialize-SRDSC {
         # Datum Install Directory
         [Parameter(Mandatory)]
         [String]
-        $DatumModulePath
+        $DatumModulePath,
+        # Parameter help description
+        [Parameter(Mandatory)]
+        [String]
+        $PullWebServerPath    
     )
-     
+    
+    $ErrorActionPreference = "Stop"
+
     #
     # Check PowerShell Window is evelated.
     if (-not(Test-isElevated)) {
@@ -38,22 +44,6 @@ function Initialize-SRDSC {
     }
 
     #
-    # Test if chocolatley is installed
-    try {
-        $null = choco -v
-    } catch {
-        # Set the TLS Settings
-        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
-        # Download and install Choco
-        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-    }
-
-    #
-    # Install Git
-    Write-Warning "Installing Git:"
-    choco install git --confirm
-
-    #
     # Clone the DSCWorkshop PowerShell Module (contains Datum)
     Write-Warning "Installing DSCWorkshop:"
 
@@ -62,36 +52,64 @@ function Initialize-SRDSC {
         $DatumModulePath = (New-Item -Path $DatumModulePath -ItemType Directory -Force).FullName
     }
 
-    # Clone the repo into the destination path
-    git clone 'https://github.com/dsccommunity/DscWorkshop.git' $DatumModulePath
-
+    # Download the Datum Module into the destination folder
+    $webRequestParams = @{
+        Uri = 'https://github.com/dsccommunity/DscWorkshop/archive/refs/heads/main.zip'
+        OutFile = "{0}\DSCWorkshop.zip" -f $env:temp
+    }
+    $null = Invoke-WebRequest @webRequestParams
+    # Expand the file
+    $archiveParams = @{
+        LiteralPath = $webRequestParams.OutFile
+        DestinationPath = $DatumModulePath
+        Force = $true
+    }
+    $null = Expand-Archive @archiveParams
+    
     #
     # Generate Self Signed Certificate on the DSC Pull Server.
     # If the file already exists, stop.
+    Write-Warning "Generating Certificate. Please wait:"
 
     # Check if the certificate already exists. If so, stop.
-    if (
-        [Array](Get-ChildItem Cert:\LocalMachine\ -Recurse |
-                    Where-Object {$_.Subject -like ('*DSC.{0}*' -f $ENV:USERDNSDOMAIN)}).Count -eq 0
-    ) { 
 
-        # Provision a new certificate.
-        # DNSName will be a dsc prefix with the userdns domain as a suffix: .contoso.local
+    Get-ChildItem Cert:\LocalMachine\ -Recurse | 
+        Where-Object {$_.Subject -like ('*DSC.{0}*' -f $ENV:USERDNSDOMAIN)} | 
+            Remove-Item -Force
 
-        $params = @{
-            DNSName = "DSC.{0}" -f $ENV:USERDNSDOMAIN 
-            CertStoreLocation = "cert:\LocalMachine\My"
-        }
-        New-SelfSignedCertificate @params
+    # Provision a new certificate.
+    # DNSName will be a dsc prefix with the userdns domain as a suffix: .contoso.local
 
+    $params = @{
+        DNSName = "DSC.{0}" -f $ENV:USERDNSDOMAIN 
+        CertStoreLocation = "cert:\LocalMachine\My"
     }
+    $certificate = New-SelfSignedCertificate @params
 
 
     #
     # Installing DSC Pull Server
     Write-Warning "Installing ScriptRunner DSC Pull Server. Please wait:"
-    New-DSCPullServer
 
+    #
+    # Generate GUID
+    $GUID = [guid]::newGuid().Guid
+
+    # Kick off the DSC Configuration
+    $xDscWebServiceRegistrationParams = @{
+        NodeName = 'localhost'
+        RegistrationKey = $GUID
+        WebServerFilePath = $PullWebServerPath
+        CertificateThumbPrint = $certificate.Thumbprint
+        OutputPath = 'C:\Windows\Temp'
+    }
+    xDscWebServiceRegistration @xDscWebServiceRegistrationParams
+    Start-DscConfiguration -Path 'C:\Windows\Temp' -Wait -Verbose -Force
+    
+    #
+    # Create the Action and Scheduled Tasks in Script Runner
+
+    
 }
 
 #
