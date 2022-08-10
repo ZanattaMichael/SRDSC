@@ -116,6 +116,9 @@ function Initialize-SRDSC {
     Start-DscConfiguration -Path 'C:\Windows\Temp' -Wait -Verbose -Force
     
     #
+    # Create the filepath
+
+    #
     # Create the Action and Scheduled Tasks in Script Runner
 
 

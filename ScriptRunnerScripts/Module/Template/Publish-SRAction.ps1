@@ -1,0 +1,2 @@
+Import-Module SRDSC
+Publish-SRActionScript -OutputFilePath $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository

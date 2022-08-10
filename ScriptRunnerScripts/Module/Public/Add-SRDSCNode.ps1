@@ -59,13 +59,13 @@ function Add-SRDSCNode {
     # The LCM Configuration is needed to register the ConfigurationID.
     # This is used by the datum configuration to rename the mof files
     $DatumLCMConfiguration = @()
-    $DatumLCMConfiguration += Import-Clixml -LiteralPath $Global:ScriptRunner.NodeRegistrationFile
+    $DatumLCMConfiguration += Import-Clixml -LiteralPath $Global:SRDSC.NodeRegistrationFile
     $DatumLCMConfiguration += [PSCustomObject]@{
         NodeName = $NodeName
         ConfigurationID = $NodeDSCLCMConfiguration.ConfigurationID
     }
 
     # Export it again
-    $DatumLCMConfiguration | Export-Clixml -LiteralPath $Global:ScriptRunner.NodeRegistrationFile
+    $DatumLCMConfiguration | Export-Clixml -LiteralPath $Global:SRDSC.NodeRegistrationFile
 
 }

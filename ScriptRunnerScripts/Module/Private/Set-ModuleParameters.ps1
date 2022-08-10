@@ -7,12 +7,16 @@ Function Set-ModuleParameters {
         $DatumModulePath,
         [Parameter(Mandatory)]
         [String]        
-        $ScriptRunnerModulePath
+        $ScriptRunnerModulePath,
+        [Parameter(Mandatory)]
+        [String]        
+        $ScriptRunnerServerPath        
     )
 
-    $Global:ScriptRunner = [PSCustomObject]@{
+    $Global:SRDSC = [PSCustomObject]@{
 
         ScriptRunner = [PSCustomObject]@{
+            ScriptRunnerDSCRepository = '{0}\ScriptMgr\DSC' -f $ScriptRunnerServerPath
             NodeTemplateFile = '{0}\Template\NodeTemplateConfiguration.yml' -f $ScriptRunnerModulePath                           
             NodeRegistrationFile = '{0}\Configuration\NodeRegistration.clixml' -f $ScriptRunnerModulePath
             ScriptTemplates = [PSCustomObject]@{
