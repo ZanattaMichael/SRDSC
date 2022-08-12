@@ -16,3 +16,5 @@ function Get-ASTScriptParameters {
     
 
 }
+
+Export-ModuleMember -Function Get-ASTScriptParameters

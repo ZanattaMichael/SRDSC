@@ -53,3 +53,5 @@ function Get-NodeTemplateConfigParams {
     $PropertyList
 
 }
+
+Export-Module -Function Get-NodeTemplateConfigParams

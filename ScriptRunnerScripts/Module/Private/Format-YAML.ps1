@@ -18,3 +18,5 @@ function Format-YAML {
     }
     
 }
+
+Export-ModuleMember -Function Format-YAML
