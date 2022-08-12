@@ -51,10 +51,12 @@ ForEach ($ParameterName in $ScriptParameterData.Parameters) {
 }
 
 #
-# Write the output of the file
-$FormattedYAMLTemplate | Format-YAML -Property $Global:SRDSC.DatumModule.YAMLSortOrder | ConvertTo-Yaml | Set-Content -LiteralPath $NodeFilePath
-
-#
 # Onboard the Virtual Machine into Desired State Configuration
 
 Add-SRDSCNode -NodeName $NodeName
+
+#
+# Write the output of the file
+$FormattedYAMLTemplate | Format-YAML -Property $Global:SRDSC.DatumModule.YAMLSortOrder | ConvertTo-Yaml | Set-Content -LiteralPath $NodeFilePath
+
+
