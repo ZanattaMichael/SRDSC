@@ -32,6 +32,7 @@ Function Set-ModuleParameters {
         }
 
         DatumModule = [PSCustomObject]@{
+            NodeRegistrationFile = '{0}\NodeRegistration.clixml' -f $DatumModulePath
             ConfigurationPath = '{0}\' -f $DatumModulePath
             RenamedMOFOutput = '{0}\output\RenamedMOF' -f $DatumModulePath
             SourcePath = '{0}\source\' -f $DatumModulePath
