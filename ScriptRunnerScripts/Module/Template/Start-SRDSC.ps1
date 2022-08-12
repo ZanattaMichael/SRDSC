@@ -1,0 +1,2 @@
+Import-Module SRDSC
+Start-SRDSConfiguration -ResolveDependency
