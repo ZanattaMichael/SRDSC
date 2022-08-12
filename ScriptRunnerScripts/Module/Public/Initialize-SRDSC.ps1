@@ -142,6 +142,8 @@ function Initialize-SRDSC {
 
 }
 
+Export-ModuleMember -Function Initialize-SRDSC
+
 #
 # TODO: Download DSC Pipeline from Github
 #

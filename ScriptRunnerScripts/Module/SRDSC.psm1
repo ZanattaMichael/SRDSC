@@ -13,10 +13,6 @@ Get-ChildItem -LiteralPath (Join-Path $parent -ChildPath 'Public') -Recurse -Fil
 }
 
 #
-# Format the Module Member
-Get-Item Function:*-SR* | ForEach-Object { Export-ModuleMember -Function $_.Name }
-
-#
 # Test if the configuration file exists
 
 $ConfigurationPath = "{0}\PowerShell\SRDSC\Configuration.clixml" -f $Env:ProgramData
