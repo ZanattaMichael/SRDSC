@@ -3,7 +3,10 @@ function Add-SRDSCNode {
     param (
         [Parameter(Mandatory)]
         [String]
-        $NodeName
+        $NodeName,
+        [Parameter(Mandatory)]
+        [String]
+        $DSCPullServer        
     )
 
     #
@@ -11,7 +14,7 @@ function Add-SRDSCNode {
     $RegistrationKey = [guid]::NewGuid().Guid
 
     # Load the DSC Server Configuration Data
-    $NodeDSCLCMConfiguration = Invoke-Command -ArgumentList $NodeName,$RegistrationKey -ComputerName $NodeName -ScriptBlock {
+    $NodeDSCLCMConfiguration = Invoke-Command -ArgumentList $DSCPullServer,$RegistrationKey -ComputerName $NodeName -ScriptBlock {
         param($DSCPullServer,$RegistrationKey)
 
         # Test if DSC has been configured on the endpoint.

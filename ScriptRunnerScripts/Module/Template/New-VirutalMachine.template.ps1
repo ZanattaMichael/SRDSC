@@ -53,7 +53,7 @@ ForEach ($ParameterName in $ScriptParameterData.Parameters) {
 #
 # Onboard the Virtual Machine into Desired State Configuration
 
-Add-SRDSCNode -NodeName $NodeName
+Add-SRDSCNode -NodeName $NodeName -DSCPullServer $Global:SRDSC.DSCPullServer.DSCPullServerName
 
 #
 # Write the output of the file
