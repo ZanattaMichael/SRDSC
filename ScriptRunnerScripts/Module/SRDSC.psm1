@@ -13,6 +13,23 @@ Get-ChildItem -LiteralPath (Join-Path $parent -ChildPath 'Public') -Recurse -Fil
 }
 
 #
-# 
+# Test if the configuration file exists
 
-Set-ModuleParameters -DatumModulePath 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner' -ScriptRunnerModulePath 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner\ScriptRunnerScripts\Module'
+$ConfigurationPath = "{0}\PowerShell\SRDSC\Configuration.clixml" -f $Env:ProgramData
+
+if (-not(Test-Path -LiteralPath $ConfigurationPath)) {
+    Write-Warning "Module Loaded: Use Initialize-SRDSC to setup and configure the module."
+    return
+}
+
+#
+# Load the configuration
+$CLIXML = Import-Clixml $ConfigurationPath
+$params = @{
+    DatumModulePath = $CLIXML.DatumModulePath
+    ScriptRunnerModulePath = $CLIXML.ScriptRunnerModulePath
+    ScriptRunnerServerPath = $CLIXML.ScriptRunnerServerPath
+}
+
+# Load the Global Settings
+Set-ModuleParameters @params

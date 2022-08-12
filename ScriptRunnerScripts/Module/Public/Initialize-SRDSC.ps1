@@ -9,7 +9,10 @@ function Initialize-SRDSC {
         # Parameter help description
         [Parameter(Mandatory)]
         [String]
-        $PullWebServerPath    
+        $PullWebServerPath,
+        [Parameter(Mandatory)]
+        [String]
+        $ScriptRunnerServerScriptPath     
     )
     
     $ErrorActionPreference = "Stop"
@@ -17,11 +20,25 @@ function Initialize-SRDSC {
     #
     # Create Configuration file to store the datum module information
 
-    $SRConfiguration = [PSCustomObject]@{
+    $ConfigurationPath = "{0}\PowerShell\SRDSC\Configuration.clixml" -f $Env:ProgramData
+    $ConfigurationParentPath = Split-Path $ConfigurationPath -Parent
+
+    $SRConfiguration = @{
         DatumModulePath = $DatumModulePath
         ScriptRunnerModulePath = (Get-Module SRDSC).Path
-        ScriptRunnerScriptPath = 
+        ScriptRunnerScriptPath = $ScriptRunnerServerScriptPath
     }
+
+    # Set the Global Vars
+    Set-ModuleParameters @SRConfiguration
+
+    # If the folder path dosen't exist, create it.
+    if (-not(Test-Path -Literalpath $ConfigurationParentPath)) {
+        $null = New-Item -Path $ConfigurationParentPath -ItemType Directory -Force
+    }
+
+    # Export the Configuration
+    ([PSCustomObject]$SRConfiguration) | Export-Clixml -LiteralPath $ConfigurationPath
 
     #
     # Check PowerShell Window is evelated.
@@ -134,3 +151,5 @@ function Initialize-SRDSC {
 #Configuration 
 
 # Create SR, scheduled actions (disabled) to 
+
+Export-ModuleMember -Function Initialize-SRDSC
