@@ -49,5 +49,3 @@ function Publish-SRActionScript {
     $templateFile | Out-File -FilePath $OutputFilePath -Force
 
 }
-
-Export-ModuleMember -Function Publish-SRActionScript

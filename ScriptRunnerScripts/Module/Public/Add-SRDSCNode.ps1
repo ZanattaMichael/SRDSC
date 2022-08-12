@@ -69,5 +69,3 @@ function Add-SRDSCNode {
     $DatumLCMConfiguration | Export-Clixml -LiteralPath $Global:SRDSC.NodeRegistrationFile
 
 }
-
-Export-ModuleMember -Function Add-SRDSCNode

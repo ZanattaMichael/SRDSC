@@ -151,5 +151,3 @@ function Initialize-SRDSC {
 #Configuration 
 
 # Create SR, scheduled actions (disabled) to 
-
-Export-ModuleMember -Function Initialize-SRDSC

@@ -75,5 +75,3 @@ function Start-SRDSConfiguration {
     # Complete
 
 }
-
-Export-ModuleMember -Function Start-SRDSCConfiguration
