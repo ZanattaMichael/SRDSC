@@ -54,4 +54,4 @@ function Get-NodeTemplateConfigParams {
 
 }
 
-Export-Module -Function Get-NodeTemplateConfigParams
+Export-ModuleMember -Function Get-NodeTemplateConfigParams
