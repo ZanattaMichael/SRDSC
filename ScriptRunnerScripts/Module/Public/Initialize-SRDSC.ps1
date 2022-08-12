@@ -25,7 +25,7 @@ function Initialize-SRDSC {
 
     $SRConfiguration = @{
         DatumModulePath = $DatumModulePath
-        ScriptRunnerModulePath = (Get-Module SRDSC).Path
+        ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
         ScriptRunnerScriptPath = $ScriptRunnerServerScriptPath
     }
 

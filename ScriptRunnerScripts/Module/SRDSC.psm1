@@ -28,7 +28,7 @@ $CLIXML = Import-Clixml $ConfigurationPath
 $params = @{
     DatumModulePath = $CLIXML.DatumModulePath
     ScriptRunnerModulePath = $CLIXML.ScriptRunnerModulePath
-    ScriptRunnerServerPath = $CLIXML.ScriptRunnerServerPath
+    ScriptRunnerServerPath = $CLIXML.ScriptRunnerScriptPath
 }
 
 # Load the Global Settings
