@@ -26,7 +26,7 @@ function Initialize-SRDSC {
     $SRConfiguration = @{
         DatumModulePath = $DatumModulePath
         ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
-        ScriptRunnerScriptPath = $ScriptRunnerServerScriptPath
+        ScriptRunnerServerPath = $ScriptRunnerServerScriptPath
     }
 
     # Set the Global Vars
