@@ -53,7 +53,7 @@ function Start-SRDSConfiguration {
         # This needs to include the .mof file and .mof.checksum file.
         $destinationFileName = "{0}\{1}.{2}" -f 
             $MOFDestinationDir.FullName
-            $matchedItem.ConfigurationID,
+            ($matchedItem.ConfigurationID | ConvertTo-PlainText),
             $item.name.split('.')[1..$item.name.split('.').Length] -join '.'
 
         # Copy the file

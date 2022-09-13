@@ -72,7 +72,7 @@ function Add-SRDSCNode {
     
     $DatumLCMConfiguration += [PSCustomObject]@{
         NodeName = $NodeName
-        ConfigurationID = $NodeDSCLCMConfiguration.ConfigurationID
+        ConfigurationID = $RegistrationKey | ConvertTo-SecureString -AsPlainText -Force
     }
 
     # Export it again
