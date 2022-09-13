@@ -64,9 +64,10 @@ function Add-SRDSCNode {
     $DatumLCMConfiguration = @()
 
     if (Test-Path -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile) {
-        $DatumLCMConfiguration += Import-Clixml -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile
+        $NodeRegistrationFile += Import-Clixml -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile
         # Filter out the existing node node. This enable rewrites
-        $DatumLCMConfiguration = $DatumLCMConfiguration | Where-Object {$_.NodeName -ne $NodeName}
+        $DatumLCMConfiguration = @()
+        $DatumLCMConfiguration += $NodeRegistrationFile | Where-Object {$_.NodeName -ne $NodeName}
     }
     
     $DatumLCMConfiguration += [PSCustomObject]@{
