@@ -14,6 +14,8 @@ function Publish-SRActionScript {
         DatumConfigurationPath = $Global:SRDSC.DatumModule.ConfigurationPath
     }
 
+    Wait-Debugger
+
     #
     # Format the Datum Configuration and include the content from the template configuration file.
     $DatumConfiguration = Read-DatumConfiguration @params
