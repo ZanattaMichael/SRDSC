@@ -1,3 +1,0 @@
-function Is-DSCPullServerExist {
-    
-}
