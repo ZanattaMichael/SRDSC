@@ -11,11 +11,11 @@ function Add-SRDSCNode {
 
     #
     # Onboard the machine into DSC and Return the LCM Configuration
-    $RegistrationKey = [guid]::NewGuid().Guid
+    $ConfigurationID = [guid]::NewGuid().Guid
 
     # Load the DSC Server Configuration Data
-    $NodeDSCLCMConfiguration = Invoke-Command -ArgumentList $DSCPullServer,$RegistrationKey -ComputerName $NodeName -ScriptBlock {
-        param($DSCPullServer, $RegistrationKey)
+    $NodeDSCLCMConfiguration = Invoke-Command -ArgumentList $DSCPullServer,$ConfigurationID -ComputerName $NodeName -ScriptBlock {
+        param($DSCPullServer, $ConfigurationID)
 
         # Test if DSC has been configured on the endpoint.
         if ($null -ne (Get-DscConfigurationStatus -ErrorAction SilentlyContinue)) {
@@ -34,18 +34,17 @@ function Add-SRDSCNode {
                     RefreshMode = 'Pull'
                     RefreshFrequencyMins = 30
                     RebootNodeIfNeeded = $true
+                    ConfigurationID = $ConfigurationID
                 }
         
                 ConfigurationRepositoryWeb CONTOSO-PullSrv
                 {
                     ServerURL = 'https://{0}:8080/PSDSCPullServer.svc' -f $DSCPullServer
-                    RegistrationKey = $RegistrationKey
                 }
         
                 ReportServerWeb CONTOSO-PullSrv
                 {
                     ServerURL = 'https://CONTOSO-PullSrv:8080/PSDSCPullServer.svc'
-                    RegistrationKey = $RegistrationKey
                 }
             }
         }
@@ -72,7 +71,7 @@ function Add-SRDSCNode {
     
     $DatumLCMConfiguration += [PSCustomObject]@{
         NodeName = $NodeName
-        ConfigurationID = $NodeDSCLCMConfiguration.AgentID | ConvertTo-SecureString -AsPlainText -Force
+        ConfigurationID = $NodeDSCLCMConfiguration.ConfigurationID | ConvertTo-SecureString -AsPlainText -Force
     }
 
     # Export it again

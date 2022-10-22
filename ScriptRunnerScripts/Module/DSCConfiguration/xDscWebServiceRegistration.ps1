@@ -9,7 +9,10 @@ configuration xDscWebServiceRegistration
         [string] $RegistrationKey,
 
         [ValidateNotNullOrEmpty()]
-        [string] $WebServerFilePath
+        [string] $WebServerFilePath,
+
+        [ValidateNotNullOrEmpty()]
+        [string] $CertificateThumbPrint
 
     )
 
@@ -30,7 +33,7 @@ configuration xDscWebServiceRegistration
             EndpointName            = "PSDSCPullServer"
             Port                    = 8080
             PhysicalPath            = "$WebServerFilePath\inetpub\PSDSCPullServer"
-            CertificateThumbPrint   = (Get-ChildItem Cert:\LocalMachine\ -Recurse | Where-Object {$_.Subject -like ('*DSC.{0}*' -f $ENV:USERDNSDOMAIN)}).Thumbprint
+            CertificateThumbPrint   = $CertificateThumbPrint
             ModulePath              = "$env:PROGRAMFILES\WindowsPowerShell\DscService\Modules"
             ConfigurationPath       = "$env:PROGRAMFILES\WindowsPowerShell\DscService\Configuration"
             State                   = "Started"
