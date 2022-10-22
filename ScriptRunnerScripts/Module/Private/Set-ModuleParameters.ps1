@@ -26,8 +26,9 @@ Function Set-ModuleParameters {
     
         DSCPullServer = [PSCustomObject]@{
             DSCPullServerName = 'SCRIPTRUNNER01'
-            DSCPullServerMOFPath = 'C:\Interpub\DSC\MOFS'
-            DSCPullServerResourceModules = 'C:\Interpub\Somepath'
+            # Use a UNC path since the pull server could be on a remote host
+            DSCPullServerMOFPath = 'C$\Program Files\WindowsPowerShell\DscService\Configuration\'
+            DSCPullServerResourceModules = 'C$\Program Files\WindowsPowerShell\DscService\Modules\'
             DSCPullServerWebAddress = 'http://SCRIPTRUNNER01:8080'
         }
 

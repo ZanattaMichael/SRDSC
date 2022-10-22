@@ -15,14 +15,14 @@ function Start-SRDSConfiguration {
     . $Global:SRDSC.DatumModule.BuildPath @PSBoundParameters
 
     # If the MOF Registration File is missing, datum nodes aren't being deployed.
-    if (-Not(Test-Path -LiteralPath $Global:SRDSC.ScriptRunner.NodeRegistrationFile)) {
+    if (-Not(Test-Path -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile)) {
         Throw "Missing NodeRegistrationFile"
     }
 
     #
     # Once the build process has been completed, load the MOF Node Registration File
 
-    $NodeRegistrationFile = Import-Clixml -LiteralPath $Global:SRDSC.ScriptRunner.NodeRegistrationFile
+    $NodeRegistrationFile = Import-Clixml -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile
 
     # Create RenamedMOFOutput directory in the output directory.
     
@@ -37,8 +37,10 @@ function Start-SRDSConfiguration {
     # This is where the compiled mof's will be copied to.
 
     #
-    # Iterate through each of the mof files in 
-    Get-ChildItem -LiteralPath $Global:SRDSC.DatumModule.CompiledMOFOutput -File -Recurse | ForEach-Object {
+    # Iterate through each of the mof files in the output
+    Get-ChildItem -LiteralPath $Global:SRDSC.DatumModule.CompiledMOFOutput -File -Recurse | Where-Object {
+        $_.Extension -ne '.checksum'
+    } | ForEach-Object {
         
         # Get the Item
         $item = $_
@@ -49,27 +51,57 @@ function Start-SRDSConfiguration {
         # Don't copy any MOF files that arn't stored within the configuration file.
         if ($matchedItem.count -eq 0) { return }
 
+        # If the configuration ID isan't a secure string. Skip
+        if ($matchedItem.ConfigurationID -isnot [SecureString]) { return }
+
         # Construct the destination file name.
         # This needs to include the .mof file and .mof.checksum file.
-        $destinationFileName = "{0}\{1}.{2}" -f 
-            $MOFDestinationDir.FullName
-            ($matchedItem.ConfigurationID | ConvertTo-PlainText),
-            $item.name.split('.')[1..$item.name.split('.').Length] -join '.'
+        $copyMofParams = @{
+            Path = $_.FullName
+            Destination = "{0}\{1}.mof" -f `
+                $MOFDestinationDir.FullName,
+                ($matchedItem.ConfigurationID | ConvertTo-PlainText)
+            Force = $true
+        }
 
         # Copy the file
-        $null = Copy-Item $_.FullName -Destination $destinationFileName -Force
+        $null = Copy-Item @copyMofParams
 
+        $copyChecksumParams = @{
+            Path = "{0}.checksum" -f $_.FullName
+            Destination = "{0}\{1}.mof.checksum" -f `
+                $MOFDestinationDir.FullName,
+                ($matchedItem.ConfigurationID | ConvertTo-PlainText)
+            Force = $true
+        }
+
+        # Copy the Checksum File
+        $null = Copy-Item @copyChecksumParams
     }
 
     #
     # Once that's completed, copy the MOFFiles and Resource Directories over to the DSCPullServer
 
-    Get-ChildItem -LiteralPath $MOFDestinationDir.FullName -File | Copy-Item -Destination $Global:SRDSC.DSCPullServer.DSCPullServerMOFPath -Force
+    $MOFFileCopyParams = @{
+        Destination = "\\{0}\{1}" -f 
+            $Global:SRDSC.DSCPullServer.DSCPullServerName, 
+            $Global:SRDSC.DSCPullServer.DSCPullServerMOFPath
+        Force = $true
+    }
+
+    Get-ChildItem -LiteralPath $MOFDestinationDir.FullName -File | Copy-Item @MOFFileCopyParams
 
     #
     # Now copy the resouce modules to the DSCPullServer
 
-    Get-ChildItem -LiteralPath $Global:SRDSC.DatumModule.CompileCompressedModulesOutput | Copy-Item -Destination $Global:SRDSC.DSCPullServer.DSCPullServerResourceModules -Force
+    $MOFResourceCopyParams = @{
+        Destination = "\\{0}\{1}" -f 
+            $Global:SRDSC.DSCPullServer.DSCPullServerName, 
+            $Global:SRDSC.DSCPullServer.DSCPullServerResourceModules
+        Force = $true
+    }
+
+    Get-ChildItem -LiteralPath $Global:SRDSC.DatumModule.CompileCompressedModulesOutput | Copy-Item @MOFResourceCopyParams
 
     #
     # Complete
