@@ -15,7 +15,7 @@ function Add-SRDSCNode {
 
     # Load the DSC Server Configuration Data
     $NodeDSCLCMConfiguration = Invoke-Command -ArgumentList $DSCPullServer,$RegistrationKey -ComputerName $NodeName -ScriptBlock {
-        param($DSCPullServer,$RegistrationKey)
+        param($DSCPullServer, $RegistrationKey)
 
         # Test if DSC has been configured on the endpoint.
         if ($null -ne (Get-DscConfigurationStatus -ErrorAction SilentlyContinue)) {
@@ -72,7 +72,7 @@ function Add-SRDSCNode {
     
     $DatumLCMConfiguration += [PSCustomObject]@{
         NodeName = $NodeName
-        ConfigurationID = $RegistrationKey | ConvertTo-SecureString -AsPlainText -Force
+        ConfigurationID = $NodeDSCLCMConfiguration.AgentID | ConvertTo-SecureString -AsPlainText -Force
     }
 
     # Export it again
