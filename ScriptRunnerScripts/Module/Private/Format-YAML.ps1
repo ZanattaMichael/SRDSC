@@ -1,4 +1,4 @@
-function $Global:Format-YAML {
+function Format-YAML {
     [CmdletBinding()]
     param (
         # HashTable
@@ -18,3 +18,5 @@ function $Global:Format-YAML {
     }
     
 }
+
+Export-ModuleMember 'Format-YAML'
