@@ -24,10 +24,13 @@ function Initialize-SRDSC {
         $ScriptRunnerServerScriptPath,
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
         [String]
-        $SSLCertificatePath,
+        $PFXCertificatePath,
+        [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
+        [SecureString]
+        $PFXCertificatePassword,        
         [Parameter(Mandatory,ParameterSetName="SelfSigned")]
         [Switch]
-        $UseSelfSignedCertificate                       
+        $UseSelfSignedCertificate                            
     )
     
     $ErrorActionPreference = "Stop"
@@ -135,12 +138,13 @@ function Initialize-SRDSC {
 
     #
     # If the SSL Certificate Path parameter was specified, import the cert
-    if ($SSLCertificatePath) {
+    if ($PFXCertificatePath) {
         $params = @{
-            FilePath = $SSLCertificatePath
+            FilePath = $PFXCertificatePath
             CertStoreLocation = "cert:\LocalMachine\My"
+            Password = $PFXCertificatePassword
         }
-        $certificate = Import-Certificate @params
+        $certificate = Import-PfxCertificate @params
     }
 
     #
