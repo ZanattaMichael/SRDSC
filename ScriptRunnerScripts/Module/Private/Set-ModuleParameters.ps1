@@ -10,7 +10,10 @@ Function Set-ModuleParameters {
         $ScriptRunnerModulePath,
         [Parameter(Mandatory)]
         [String]        
-        $ScriptRunnerServerPath        
+        $ScriptRunnerServerPath,
+        [Parameter(Mandatory)]
+        [String]        
+        $PullServerRegistrationKey                
     )
 
     $Global:SRDSC = [PSCustomObject]@{
@@ -30,6 +33,7 @@ Function Set-ModuleParameters {
             DSCPullServerMOFPath = 'C$\Program Files\WindowsPowerShell\DscService\Configuration\'
             DSCPullServerResourceModules = 'C$\Program Files\WindowsPowerShell\DscService\Modules\'
             DSCPullServerWebAddress = 'http://SCRIPTRUNNER01:8080'
+            PullServerRegistrationKey = $PullServerRegistrationKey          
         }
 
         DatumModule = [PSCustomObject]@{

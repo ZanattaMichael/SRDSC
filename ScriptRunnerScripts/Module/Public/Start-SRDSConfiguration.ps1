@@ -10,9 +10,18 @@ function Start-SRDSConfiguration {
     )
 
     #
+    # This process will compile the Datum Configuration and Push the configuration to the Pull Server
+    #
+    Write-Host "[Start-SRDSCConfiguration] Starting Build."
+
+    #
     #  Start the Build Process
 
     . $Global:SRDSC.DatumModule.BuildPath @PSBoundParameters
+
+    #
+    # Write Message
+    Write-Host "[Start-SRDSCConfiguration] Build Completed. Processing Exportable MOF Files."
 
     # If the MOF Registration File is missing, datum nodes aren't being deployed.
     if (-Not(Test-Path -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile)) {
@@ -21,19 +30,34 @@ function Start-SRDSConfiguration {
 
     #
     # Once the build process has been completed, load the MOF Node Registration File
-
     $NodeRegistrationFile = Import-Clixml -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile
 
-    # Create RenamedMOFOutput directory in the output directory.
-    
+    # Create RenamedMOFOutput directory in the output directory.    
     $MOFDestinationDir = $(
         if (Test-Path -LiteralPath $Global:SRDSC.DatumModule.RenamedMOFOutput) {
             Get-Item -LiteralPath $Global:SRDSC.DatumModule.RenamedMOFOutput
         } else {
             New-Item -Path $Global:SRDSC.DatumModule.RenamedMOFOutput -Type Directory -ErrorAction Stop
         }
-    )   
-    
+    )
+
+    #
+    # Clear out all existing MOF files to prevent existing configuration from existing
+    Write-Host "[Start-SRDSCConfiguration] Clearing out existing MOF files."
+    $MOFDestinationDir | Get-ChildItem -File | Remove-Item -Force -Confirm:$false
+
+    #
+    # If the DSC Pull Server is using Registration ID's, it just needs to perform a normal copy.
+    # Copy the mof files and their checksums into the DSCService Directory
+    #
+
+    Write-Host "[Start-SRDSCConfiguration] Copying MOF Files to: $($MOFDestinationDir.FullName)"
+    Get-ChildItem -LiteralPath $Global:SRDSC.DatumModule.CompiledMOFOutput -File -Recurse | Copy-Item -Destination $MOFDestinationDir.FullName -Force
+
+    #
+    # If the DSC Pull Server is Using Configuration Id's, this process will rename them into their respective GUIDS
+    #
+
     # This is where the compiled mof's will be copied to.
 
     #
@@ -56,7 +80,7 @@ function Start-SRDSConfiguration {
 
         # Construct the destination file name.
         # This needs to include the .mof file and .mof.checksum file.
-        $copyMofParams = @{
+        $copyMOFParams = @{
             Path = $_.FullName
             Destination = "{0}\{1}.mof" -f `
                 $MOFDestinationDir.FullName,
@@ -65,7 +89,7 @@ function Start-SRDSConfiguration {
         }
 
         # Copy the file
-        $null = Copy-Item @copyMofParams
+        $null = Copy-Item @copyMOFParams
 
         $copyChecksumParams = @{
             Path = "{0}.checksum" -f $_.FullName

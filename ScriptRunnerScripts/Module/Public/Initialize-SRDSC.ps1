@@ -44,8 +44,8 @@ function Initialize-SRDSC {
     $SRConfiguration = @{
         DatumModulePath = $DatumModulePath
         ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
-        ScriptRunnerScriptPath = $ScriptRunnerServerScriptPath
-        CertificateThumbprint = $CertificateThumbprint
+        ScriptRunnerServerPath = $ScriptRunnerServerScriptPath
+        PullServerRegistrationKey = [guid]::newGuid().Guid
     }
 
     # Set the Global Vars
@@ -94,7 +94,7 @@ function Initialize-SRDSC {
 
     # Create the folder structure. If required.
     if (Test-Path -LiteralPath $DatumModulePath) {
-        $DatumModulePath = (New-Item -Path $DatumModulePath -ItemType Directory -Force).FullName
+        #$DatumModulePath = (New-Item -Path $DatumModulePath -ItemType Directory -Force).FullName
     }
 
     # Download the Datum Module into the destination folder
@@ -139,6 +139,11 @@ function Initialize-SRDSC {
     #
     # If the SSL Certificate Path parameter was specified, import the cert
     if ($PFXCertificatePath) {
+
+        #
+        # Print to the user that a third party certificate is being installed.
+        Write-Warning "Importing Third-Party Certificate. Please wait:"
+
         $params = @{
             FilePath = $PFXCertificatePath
             CertStoreLocation = "cert:\LocalMachine\My"
@@ -151,14 +156,10 @@ function Initialize-SRDSC {
     # Installing DSC Pull Server
     Write-Warning "Installing ScriptRunner DSC Pull Server. Please wait:"
 
-    #
-    # Generate GUID
-    $GUID = [guid]::newGuid().Guid
-
     # Kick off the DSC Configuration
     $xDscWebServiceRegistrationParams = @{
         NodeName = 'localhost'
-        RegistrationKey = $GUID
+        RegistrationKey = $SRConfiguration.PullServerRegistrationKey
         WebServerFilePath = $PullWebServerPath
         CertificateThumbPrint = $certificate.Thumbprint
         OutputPath = 'C:\Windows\Temp'
