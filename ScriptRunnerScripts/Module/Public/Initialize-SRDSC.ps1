@@ -1,18 +1,33 @@
 
 function Initialize-SRDSC {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName="Default")]
     param (
         # Datum Install Directory
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory,ParameterSetName="Default")]
+        [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
+        [Parameter(Mandatory,ParameterSetName="SelfSigned")]
+        [Parameter(Mandatory,ParameterSetName="NoSSL")]
         [String]
         $DatumModulePath,
         # Parameter help description
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory,ParameterSetName="Default")]
+        [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
+        [Parameter(Mandatory,ParameterSetName="SelfSigned")]
+        [Parameter(Mandatory,ParameterSetName="NoSSL")]
         [String]
         $PullWebServerPath,
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory,ParameterSetName="Default")]
+        [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
+        [Parameter(Mandatory,ParameterSetName="SelfSigned")]
+        [Parameter(Mandatory,ParameterSetName="NoSSL")]
         [String]
-        $ScriptRunnerServerScriptPath     
+        $ScriptRunnerServerScriptPath,
+        [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
+        [String]
+        $SSLCertificatePath,
+        [Parameter(Mandatory,ParameterSetName="SelfSigned")]
+        [Switch]
+        $UseSelfSignedCertificate                       
     )
     
     $ErrorActionPreference = "Stop"
@@ -27,6 +42,7 @@ function Initialize-SRDSC {
         DatumModulePath = $DatumModulePath
         ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
         ScriptRunnerScriptPath = $ScriptRunnerServerScriptPath
+        CertificateThumbprint = $CertificateThumbprint
     }
 
     # Set the Global Vars
@@ -93,25 +109,39 @@ function Initialize-SRDSC {
     $null = Expand-Archive @archiveParams
     
     #
-    # Generate Self Signed Certificate on the DSC Pull Server.
-    # If the file already exists, stop.
-    Write-Warning "Generating Certificate. Please wait:"
+    # Load SSL Certificates
 
-    # Check if the certificate already exists. If so, stop.
+    if ($UseSelfSignedCertificate.IsPresent) {
 
-    Get-ChildItem Cert:\LocalMachine\ -Recurse | 
-        Where-Object {$_.Subject -like ('*DSC.{0}*' -f $ENV:USERDNSDOMAIN)} | 
-            Remove-Item -Force
+        #
+        # Generate Self Signed Certificate on the DSC Pull Server.
+        # If the file already exists, stop.
+        Write-Warning "Generating Self-Signed Certificate. Please wait:"
 
-    # Provision a new certificate.
-    # DNSName will be a dsc prefix with the userdns domain as a suffix: .contoso.local
+        # Check if the certificate already exists. If so, stop.
+        Get-ChildItem Cert:\LocalMachine\ -Recurse | 
+            Where-Object {$_.Subject -like ('*DSC.{0}*' -f $ENV:USERDNSDOMAIN)} | 
+                Remove-Item -Force
 
-    $params = @{
-        DNSName = "DSC.{0}" -f $ENV:USERDNSDOMAIN 
-        CertStoreLocation = "cert:\LocalMachine\My"
+        # Provision a new certificate.
+        # DNSName will be a dsc prefix with the userdns domain as a suffix: .contoso.local
+        $params = @{
+            DNSName = "DSC.{0}" -f $ENV:USERDNSDOMAIN 
+            CertStoreLocation = "cert:\LocalMachine\My"
+        }
+        $certificate = New-SelfSignedCertificate @params
+
     }
-    $certificate = New-SelfSignedCertificate @params
 
+    #
+    # If the SSL Certificate Path parameter was specified, import the cert
+    if ($SSLCertificatePath) {
+        $params = @{
+            FilePath = $SSLCertificatePath
+            CertStoreLocation = "cert:\LocalMachine\My"
+        }
+        $certificate = Import-Certificate @params
+    }
 
     #
     # Installing DSC Pull Server
