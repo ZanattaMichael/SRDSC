@@ -18,6 +18,10 @@ Function Set-ModuleParameters {
 
     $Global:SRDSC = [PSCustomObject]@{
 
+        Module = [PSCustomObject]@{
+            TemplateDirectory = "{0}\Template" -f (Split-Path -Parent ((Get-Module SRDSC -ListAvailable)[0].Path))
+        }
+
         ScriptRunner = [PSCustomObject]@{
             ScriptRunnerDSCRepository = '{0}\ScriptMgr\DSC' -f $ScriptRunnerServerPath
             NodeTemplateFile = '{0}\Template\NodeTemplateConfiguration.yml' -f $ScriptRunnerModulePath                           
