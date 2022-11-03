@@ -112,6 +112,25 @@ function Initialize-SRDSC {
     $null = Expand-Archive @archiveParams
     
     #
+    # Perform Git Initialization on Datum Source Directory
+    $PreviousLocation = Get-Location 
+    Set-Location $Global:SRDSC.DatumModule.SourcePath
+    git init
+
+    #
+    # Configure Git
+    
+    git config --global user.name "SCRIPTRUNNERSERVICE" 
+    git config --global user.email ("SCRIPTRUNNERSERVICE@{0}" -f $ENV:USERDOMAIN)
+
+    #
+    # Add and Commit the files
+    git add .
+    git commit -m 'Initial Commit'
+
+    Set-Location $PreviousLocation.Path
+
+    #
     # Load SSL Certificates
 
     if ($UseSelfSignedCertificate.IsPresent) {
@@ -192,7 +211,6 @@ function Initialize-SRDSC {
 
     #
     # Create the Action and Scheduled Tasks in Script Runner
-
 
 
 }
