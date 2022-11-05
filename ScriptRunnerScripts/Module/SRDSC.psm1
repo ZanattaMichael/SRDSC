@@ -1,5 +1,7 @@
 $parent = (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
+$isModule = $true
+
 Get-ChildItem -LiteralPath (Join-Path $parent -ChildPath 'DSCConfiguration') -Recurse -File | ForEach-Object {
     . $_.FullName 
 }

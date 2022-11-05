@@ -13,13 +13,19 @@ Function Set-ModuleParameters {
         $ScriptRunnerServerPath,
         [Parameter(Mandatory)]
         [String]        
-        $PullServerRegistrationKey                
+        $PullServerRegistrationKey,
+        [Parameter()]
+        [String]
+        $ModulePath                
     )
 
     $Global:SRDSC = [PSCustomObject]@{
 
         Module = [PSCustomObject]@{
-            TemplateDirectory = "{0}\Template" -f (Split-Path -Parent ((Get-Module SRDSC -ListAvailable)[0].Path))
+            TemplateDirectory = $(
+                if ($ModulePath) { $ModulePath }
+                else { "{0}\Template" -f (Split-Path -Parent ((Get-Module SRDSC -ListAvailable)[0].Path))}            
+            )
         }
 
         ScriptRunner = [PSCustomObject]@{

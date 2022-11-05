@@ -132,4 +132,4 @@ function Start-SRDSConfiguration {
 
 }
 
-Export-ModuleMember -Function Start-SRDSConfiguration
+if ($isModule) { Export-ModuleMember -Function Start-SRDSConfiguration }

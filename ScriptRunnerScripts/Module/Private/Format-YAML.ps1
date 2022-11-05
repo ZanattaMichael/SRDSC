@@ -19,4 +19,4 @@ function Format-YAML {
     
 }
 
-Export-ModuleMember 'Format-YAML'
+if ($isModule) { Export-ModuleMember 'Format-YAML' }

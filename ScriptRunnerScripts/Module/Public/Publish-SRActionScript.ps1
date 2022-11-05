@@ -52,4 +52,4 @@ function Publish-SRActionScript {
 
 }
 
-Export-ModuleMember -Function Publish-SRActionScript
+if ($isModule) { Export-ModuleMember -Function Publish-SRActionScript }

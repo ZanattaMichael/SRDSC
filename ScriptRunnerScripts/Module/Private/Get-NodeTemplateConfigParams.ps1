@@ -54,4 +54,4 @@ function Get-NodeTemplateConfigParams {
 
 }
 
-Export-ModuleMember -Function Get-NodeTemplateConfigParams
+if ($isModule) { Export-ModuleMember -Function Get-NodeTemplateConfigParams }

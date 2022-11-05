@@ -17,4 +17,4 @@ function Get-ASTScriptParameters {
 
 }
 
-Export-ModuleMember -Function Get-ASTScriptParameters
+if ($isModule) { Export-ModuleMember -Function Get-ASTScriptParameters }

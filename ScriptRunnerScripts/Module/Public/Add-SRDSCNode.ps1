@@ -163,4 +163,4 @@ function Add-SRDSCNode {
 
 }
 
-Export-ModuleMember -Function Add-SRDSCNode
+if ($isModule) { Export-ModuleMember -Function Add-SRDSCNode }

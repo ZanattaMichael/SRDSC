@@ -215,7 +215,7 @@ function Initialize-SRDSC {
 
 }
 
-Export-ModuleMember -Function Initialize-SRDSC
+if ($isModule) { Export-ModuleMember -Function Initialize-SRDSC }
 
 <#
 
