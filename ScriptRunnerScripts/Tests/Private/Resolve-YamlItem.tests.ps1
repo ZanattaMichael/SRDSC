@@ -1,11 +1,4 @@
 
-Function New-MockFilePath ($Path) {
-    return [PSCustomObject]@{
-        FullName = $Path
-        Name = Split-Path $Path -Leaf
-    }    
-}
-
 Describe "Testing Resolve-YamlItem" {
 
     Mock -CommandName "Get-ChildItem" -MockWith {
@@ -46,8 +39,5 @@ Describe "Testing Resolve-YamlItem" {
         $result.Depth | Should -be 3     
 
     }
-
-
-
 
 }
