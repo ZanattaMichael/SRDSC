@@ -1,5 +1,10 @@
-function Resolve-YamlItem($FilePath)
-{
+function Resolve-YamlItem {
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [String]
+        $FilePath
+    )
 
     Get-ChildItem -LiteralPath $FilePath -Recurse -Filter *.yml | Select-Object @{
         Name='ItemPath'
