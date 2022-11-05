@@ -1,3 +1,5 @@
+$GLOBAL:SRDSCTESTPATH = 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner\ScriptRunnerScripts'
+
 Set-ModuleParameters -DatumModulePath 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner' -ScriptRunnerModulePath 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner\ScriptRunnerScripts\Module' -ScriptRunnerServerPath 'C:\MOCK' -PullServerRegistrationKey 'MOCK' -ModulePath 'C:\MOCK'
 
 
