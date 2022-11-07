@@ -5,6 +5,17 @@ function Find-YamlValue {
         [String]$ValueToFind
     )
 
+    Start-YamlSearch @PSBoundParameters | Sort-Object -Unique -Property Path
+
+}
+
+Function Start-YamlSearch {
+
+    [CmdletBinding()]
+    param (
+        [Object]$YAMLObject,
+        [String]$ValueToFind
+    )
 
     switch ($YAMLObject) {
 
@@ -21,7 +32,7 @@ function Find-YamlValue {
                     ValueToFind = $ValueToFind
                 }
 
-                Find-YamlValue @params
+                Start-YamlSearch @params
 
             }
 
@@ -45,7 +56,7 @@ function Find-YamlValue {
                     ValueToFind = $ValueToFind
                 }
 
-                Find-YamlValue @params 
+                Start-YamlSearch @params 
     
             }
 
@@ -65,7 +76,6 @@ function Find-YamlValue {
 
         }
 
-    }   
+    }
 
 }
-
