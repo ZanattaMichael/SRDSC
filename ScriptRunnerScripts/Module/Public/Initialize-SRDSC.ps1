@@ -45,6 +45,8 @@ function Initialize-SRDSC {
         DatumModulePath = $DatumModulePath
         ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
         ScriptRunnerServerPath = $ScriptRunnerServerScriptPath
+        ScriptRunnerServerName = $ScriptRunnerServerName
+        DSCPullServerWebAddress = $PullWebServerPath
         PullServerRegistrationKey = [guid]::newGuid().Guid
     }
 

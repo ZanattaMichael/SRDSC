@@ -8,7 +8,7 @@ Function Import-MockData {
     )
 
     $params = @{
-        LiteralPath = "{0}\Tests\Mocks\{1}.clixml" -f $GLOBAL:SRDSCTESTPATH, $CommandName
+        LiteralPath = "{0}\Tests\Mocks\{1}.clixml" -f $Global:TestRootPath, $CommandName
     }
     Import-Clixml @params
 

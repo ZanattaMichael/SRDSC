@@ -1,5 +1,6 @@
 $parent = (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
+# Set isModule to true to enable module member export
 $isModule = $true
 
 Get-ChildItem -LiteralPath (Join-Path $parent -ChildPath 'DSCConfiguration') -Recurse -File | ForEach-Object {
