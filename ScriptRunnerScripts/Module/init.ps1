@@ -12,3 +12,5 @@ Get-ChildItem -LiteralPath (Join-Path $parent -ChildPath 'Private') -Recurse -Fi
 Get-ChildItem -LiteralPath (Join-Path $parent -ChildPath 'Public') -Recurse -File | ForEach-Object {
     . $_.FullName 
 }
+
+Get-ChildItem -LiteralPath 

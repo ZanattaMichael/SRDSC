@@ -2,6 +2,9 @@ Describe "Testing Format-YAMLObject" {
 
     BeforeAll {
         
+        #
+        # Arrange
+
         # Mock Input Data
         # Must be seralized and deseralized from YAML
         $YAMLPSHashTable = @{
@@ -23,24 +26,37 @@ Describe "Testing Format-YAMLObject" {
 
     it "Should not throw errors" {
 
+        #
+        # Arrange
         $params = @{
             YAMLObject = $YAMLPSHashTable
             ObjectName = 'MOCK'
         }
 
+        #
+        # Act and Assert
         { Format-YAMLObject @params } | Should -Not -Throw
 
     }
 
     it "Should contain the correct PowerShell Path" {
 
+        #
+        # Arrange
+
         $params = @{
             YAMLObject = $YAMLPSHashTable
             ObjectName = 'MOCK'
         }
 
+        #
+        # Act
+
         $result = Format-YAMLObject @params
 
+        #
+        # Assert
+                
         $result.TopLevelProperty.'_YAMLPath' | Should -Be '$MOCK."TopLevelProperty"'
         $result.TopLevelObject.SecondaryArray[0].'_YAMLPath' | Should -Be '$MOCK."TopLevelObject"."SecondaryArray"[0]'
         $result.TopLevelObject.SecondaryArray[1].'_YAMLPath' | Should -Be '$MOCK."TopLevelObject"."SecondaryArray"[1]'

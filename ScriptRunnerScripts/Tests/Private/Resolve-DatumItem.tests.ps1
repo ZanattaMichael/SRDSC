@@ -12,6 +12,9 @@ Describe "Testing Resolve-DatumItem" {
 
     it "Should return the correct properties" {
 
+        #
+        # Arrange
+
         $YamlItems = @(
             [PSCustomObject]@{
                 ItemPath = '\First\Second\File'
@@ -26,7 +29,13 @@ Describe "Testing Resolve-DatumItem" {
             YamlItems = $YamlItems
         }
 
+        #
+        # Act
+
         $result = Resolve-DatumItem @params
+
+        #
+        # Assert
 
         $output = @(
             [PSCustomObject]@{
@@ -64,6 +73,9 @@ Describe "Testing Resolve-DatumItem" {
 
     it "Should return values matched from the YAML when a variable is included in the file path" {
 
+        #
+        # Arrange
+
         $YamlItems = @(
             [PSCustomObject]@{
                 ItemPath = '\First\Second'
@@ -73,6 +85,9 @@ Describe "Testing Resolve-DatumItem" {
             }
         )                                
         
+        #
+        # Act
+
         $params = @{
             DatumPath = 'First\$($Node.MockFile)\File'
             YamlItems = $YamlItems
@@ -80,6 +95,9 @@ Describe "Testing Resolve-DatumItem" {
 
         $result = Resolve-DatumItem @params | Where-Object {$_.isVar}
         
+        #
+        # Assert
+
         $result.values | Should -Be $YamlItems
 
     }

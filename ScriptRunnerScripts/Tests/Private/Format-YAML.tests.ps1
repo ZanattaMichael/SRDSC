@@ -1,5 +1,7 @@
 Describe "Testing Format-YAML" {
 
+    #
+    # Arrange
 
     $params = @(
         @{
@@ -33,7 +35,12 @@ Describe "Testing Format-YAML" {
     it "Properties (<Properties>) Should return (<Result>)" -TestCases $params {
         param($HashTable, $Properties, $Result)
         
+        #
+        # Act
         $output = Format-YAML -Table $HashTable -Property $Properties 
+
+        #
+        # Assert
         $output.PSObject.Properties.Name | Should -be $Result
     }
 

@@ -2,6 +2,9 @@ Describe "Find-YamlValue" {
 
     it "Should return the correct values" {
 
+        #
+        # Arrange
+
         # Create a YAML Object
         $mockObject = @{
             SecondaryLevel = @{
@@ -20,7 +23,13 @@ Describe "Find-YamlValue" {
 
         $formattedObject = Format-YAMLObject @params 
       
+        #
+        # Act
+
         [Array]$result = Find-YamlValue -YamlObject $formattedObject -ValueToFind 'First'
+
+        #
+        # Assert
 
         $result.Count | Should -be 1
         $result.Value | Should -be 'First'
@@ -30,6 +39,8 @@ Describe "Find-YamlValue" {
 
     it "Should return a list of all properties that are wrapped in a double '%%'" {
 
+        #
+        # Arrange
 
         # Create a YAML Object
         $mockObject = @{
@@ -43,9 +54,14 @@ Describe "Find-YamlValue" {
             ObjectName = 'MOCK'
         }
 
+        #
+        # Act
+
         $formattedObject = Format-YAMLObject @params 
-      
         [Array]$result = Find-YamlValue -YamlObject $formattedObject -ValueToFind '%%'
+
+        #
+        # Assert
         $result.Count | Should -be 2 
 
     }

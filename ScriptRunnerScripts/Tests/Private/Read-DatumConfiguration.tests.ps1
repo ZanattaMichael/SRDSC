@@ -2,6 +2,10 @@
 Describe "Testing Read-DatumConfiguration" {
 
     BeforeAll {
+
+        #
+        # Arrange
+
         Mock -CommandName 'Get-Content' -MockWith { return "MOCK" }
         Mock -CommandName 'Test-Path' -MockWith { return $true }
         Mock -CommandName 'ConvertFrom-Yaml' -MockWith { 
@@ -18,10 +22,17 @@ Describe "Testing Read-DatumConfiguration" {
 
     it 'Should return a response' {
 
+        #
+        # Act
+
         $params = @{
             DatumConfigurationFile = 'MOCK'
             DatumConfigurationPath = 'MOCK'
         }
+
+        #
+        # Assert
+                
         Read-DatumConfiguration @params | Should -Not -BeNullOrEmpty
 
     }
