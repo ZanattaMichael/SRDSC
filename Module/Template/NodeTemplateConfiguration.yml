@@ -1,0 +1,33 @@
+NodeName: '%%SR_PARAM_OVERRIDE%%'
+Environment: '[x={ $File.Directory.BaseName } =]'
+Role: '%%SR_PARAM%%'
+Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
+Location: '%%SR_PARAM%%'
+Baseline: '%%SR_PARAM%%'
+
+ComputerSettings:
+  Name: '[x={ $Node.NodeName }=]'
+  Description: '[x= "$($Node.Role) in $($Node.Environment)" =]'
+
+NetworkIpConfiguration:
+  Interfaces:
+    - InterfaceAlias: 0
+      IpAddress: '%%SR_PARAM%%'
+      Prefix: 24
+      Gateway: '%%SR_PARAM%%'
+      DnsServer:
+        - '%%SR_PARAM%%'
+        - '%%SR_PARAM%%'
+      DisableNetbios: true
+
+PSDscAllowPlainTextPassword: True
+PSDscAllowDomainUser: True
+
+LcmConfig:
+  ConfigurationRepositoryWeb:
+    Server:
+      ConfigurationNames: '[x={ $Node.NodeName }=]'
+
+DscTagging:
+  Layers:
+    - '[x={ Get-DatumSourceFile -Path $File } =]'
