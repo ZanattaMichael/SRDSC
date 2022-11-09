@@ -19,7 +19,7 @@ $params @{
 }
 Get-ChildItem @params | ForEach-Object { . $_.FullName }
 
-$UpdatedPath = Join-Path -Path $RootPath -ChildPath 'build\LocalLoader.ps1' 
+$UpdatedPath = Join-Path -Path $RootPath -ChildPath '_build\LocalLoader.ps1' 
 
 if ($IsCoreCLR -and $CI) {
     $UpdatedPath = $UpdatedPath.Replace('/SelMVP/SelMVP/', '/SelMVP/')
