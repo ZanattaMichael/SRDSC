@@ -9,14 +9,19 @@
 #>
 [CmdletBinding()]
 param (
+    # Module Path to Datum
     [Parameter(Mandatory)]
     [String]
     $DatumModulePath,
+    # Module Path to the Scriptrunner Module
     [Parameter(Mandatory)]
     [String]
-    $ScriptRunnerModulePath,  
+    $ScriptRunnerModulePath,
+
     [Parameter(Mandatory)]
     [String]
+    # File Path to the Script Runner
+    # Server Repository Path      
     $ScriptRunnerServerPath        
 )
 

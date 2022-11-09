@@ -6,6 +6,8 @@ function Get-ASTScriptParameters {
         $ScriptPath
     )
 
+    $ErrorActionPreference = 'Stop'
+
     [PSCustomObject]@{
         Parameters = (Get-Command $ScriptPath).ScriptBlock.Ast.ParamBlock.Parameters.Name.Extent.Text
         YAMLData = Get-Content $ScriptPath | Where-Object {$_ -like '*#JSONData:*'} | ForEach-Object {
