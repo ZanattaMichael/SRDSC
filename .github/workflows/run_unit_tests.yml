@@ -39,7 +39,7 @@ jobs:
       - name: Install Supporting Modules
         run:
           $ErrorActionPreference = 'Stop';
-          Install-Module 'powershell-yaml'
+          Install-Module 'powershell-yaml';
           Write-Host "Success";
         shell: powershell
 
