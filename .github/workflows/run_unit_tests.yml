@@ -35,6 +35,14 @@ jobs:
           Write-Host "Success";
         shell: powershell
 
+     # Install Supporting Modules 
+      - name: Install Pester
+        run:
+          $ErrorActionPreference = 'Stop';
+          Install-Module 'powershell-yaml'
+          Write-Host "Success";
+        shell: powershell
+
       - name: InvokePesterTests
         run: |
           .\Tests\Invoke-Tests.ps1 -CI;
