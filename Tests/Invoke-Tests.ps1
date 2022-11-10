@@ -27,7 +27,7 @@ if ($IsCoreCLR -and $CI) {
 }
 
 # Invoke the Local Loader and Point it to the Module Directory
-. $UpdatedPath $RootPath
+. $UpdatedPath $RootPath -CI
 
 # Invoke the Pester Tests
 Invoke-Pester -Path (Join-Path -Path $Global:TestRootPath -ChildPath 'Private') -CI:$CI
