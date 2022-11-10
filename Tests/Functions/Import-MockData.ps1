@@ -7,8 +7,12 @@ Function Import-MockData {
         $CommandName
     )
 
+    if ([String]::IsNullOrEmpty($Global:TestRootPath)) {
+        Wait-Debugger
+    }
+
     $params = @{
-        LiteralPath = "{0}\Tests\Mocks\{1}.clixml" -f $Global:TestRootPath, $CommandName
+        LiteralPath = "{0}\Mocks\{1}.clixml" -f $Global:TestRootPath, $CommandName
     }
     Import-Clixml @params
 
