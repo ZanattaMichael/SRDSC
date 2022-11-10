@@ -1,10 +1,25 @@
 Describe "Testing ConvertTo-PowerShellParameter" {
 
+    BeforeAll {
+        # Backup the DSC Configuration State
+        Backup-SRDSCState
+
+        # Time to mock the context!
+        $Global:SRDSC = @{
+            ScriptRunner = @{
+                NodeTemplateFile = "MOCK"
+            }
+        }
+    }
+
+    AfterAll {
+        Restore-SRDSCState
+    }
+
     it "Should return a list of parameters" {
 
         #
         # Arrange
-
         $formattedDatumParams = @{
             DatumConfiguration = Import-MockData -CommandName 'Read-DatumConfiguration'
             NodeTemplateConfiguration = Import-MockData -CommandName 'Get-NodeTemplateConfigParams'
@@ -41,7 +56,6 @@ Describe "Testing ConvertTo-PowerShellParameter" {
         # Assert
 
         $formattedDatumConfig.TemplateFilePath | Should -not -BeNullOrEmpty
-        $formattedDatumConfig.DatumConfiguration | Should -not -BeNullOrEmpty
         $formattedDatumConfig.DatumConfiguration | Should -not -BeNullOrEmpty
         $formattedDatumConfig.DatumConfiguration.ParameterValues.Count | Should -be 19
         $formattedDatumConfig.DatumConfiguration.ParameterValues | Should -be $parameterValues
