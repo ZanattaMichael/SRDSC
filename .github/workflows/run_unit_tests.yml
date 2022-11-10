@@ -36,7 +36,7 @@ jobs:
         shell: powershell
 
      # Install Supporting Modules 
-      - name: Install Pester
+      - name: Install Supporting Modules
         run:
           $ErrorActionPreference = 'Stop';
           Install-Module 'powershell-yaml'
