@@ -38,7 +38,7 @@ Function Set-ModuleParameters {
             # Use a UNC path since the pull server could be on a remote host
             DSCPullServerMOFPath = 'C$\Program Files\WindowsPowerShell\DscService\Configuration\'
             DSCPullServerResourceModules = 'C$\Program Files\WindowsPowerShell\DscService\Modules\'
-            DSCPullServerWebAddress = '{0}://{0}:8080' -f $DSCPullServerHTTP, $DSCPullServer
+            DSCPullServerWebAddress = '{0}://{1}:8080' -f $DSCPullServerHTTP, $DSCPullServer
             PullServerRegistrationKey = $PullServerRegistrationKey          
         }
 

@@ -1,25 +1,21 @@
 
+#Initialize-SRDSC -DatumModulePath C:\Temp -PullWebServerPath C:\Inetpub -ScriptRunnerServerScriptPath C:\Temp2 -UseSelfSignedCertificate
+
 function Initialize-SRDSC {
-    [CmdletBinding(DefaultParameterSetName="Default")]
+    [CmdletBinding(DefaultParameterSetName="SelfSigned")]
     param (
         # Datum Install Directory
-        [Parameter(Mandatory,ParameterSetName="Default")]
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
         [Parameter(Mandatory,ParameterSetName="SelfSigned")]
-        [Parameter(Mandatory,ParameterSetName="NoSSL")]
         [String]
         $DatumModulePath,
         # Parameter help description
-        [Parameter(Mandatory,ParameterSetName="Default")]
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
         [Parameter(Mandatory,ParameterSetName="SelfSigned")]
-        [Parameter(Mandatory,ParameterSetName="NoSSL")]
         [String]
         $PullWebServerPath,
-        [Parameter(Mandatory,ParameterSetName="Default")]
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
         [Parameter(Mandatory,ParameterSetName="SelfSigned")]
-        [Parameter(Mandatory,ParameterSetName="NoSSL")]
         [String]
         $ScriptRunnerServerScriptPath,
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
@@ -34,6 +30,8 @@ function Initialize-SRDSC {
     )
     
     $ErrorActionPreference = "Stop"
+
+    $ModuleDirectory = Split-Path (Get-Module SRDSC).Path -Parent
 
     #
     # Check PowerShell Window is evelated.
@@ -59,8 +57,6 @@ function Initialize-SRDSC {
         DatumModulePath = $DatumModulePath
         ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
         ScriptRunnerServerPath = $ScriptRunnerServerScriptPath
-        ScriptRunnerServerName = $ScriptRunnerServerName
-        DSCPullServerWebAddress = $PullWebServerPath
         PullServerRegistrationKey = [guid]::newGuid().Guid
         DSCPullServer = $ENV:COMPUTERNAME
         DSCPullServerHTTP = $(
@@ -75,10 +71,6 @@ function Initialize-SRDSC {
     Set-ModuleParameters @SRConfiguration
 
     #
-    # Installing DSC Pull Server
-    Write-Warning "Installing ScriptRunner DSC Pull Server. Please wait:"
-
-    #
     # Load SSL Certificates
 
     if ($UseSelfSignedCertificate.IsPresent) {
@@ -88,7 +80,7 @@ function Initialize-SRDSC {
         # If the file already exists, stop.
         Write-Warning "Generating Self-Signed Certificate. Please wait:"
 
-        # Check if the certificate already exists. If so, stop.
+        # Check if the certificate already exists. If so, remove them.
         Get-ChildItem Cert:\LocalMachine\ -Recurse | 
             Where-Object {$_.Subject -like ('*DSC.{0}*' -f $ENV:USERDNSDOMAIN)} | 
                 Remove-Item -Force
@@ -134,21 +126,24 @@ function Initialize-SRDSC {
         xDscDatumModuleRegistrationParams = @{
             
             DatumModulePath = $Global:SRDSC.DatumModule.DatumModulePath
-            DatumModuleTemplatePath = $Global:SRDSC.DatumModule.DatumTemplates
-            SRDSCTemplateFile = $Global:SRDSC.ScriptRunner.NodeRegistrationFile
+            DatumModuleTemplatePath = "{0}\{1}" -f $Global:SRDSC.DatumModule.DatumTemplates, (Split-Path $Global:SRDSC.ScriptRunner.NodeTemplateFile -Leaf)
+            SRDSCTemplateFile = $Global:SRDSC.ScriptRunner.NodeTemplateFile
 
         }
 
         xDscSRDSCModuleRegistrationParams = @{
             ConfigurationParentPath = $ConfigurationParentPath
             ScriptRunnerDSCRepository = $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository
-            FilesToCopy = @(
-                "{0}\Publish-SRAction.ps1" -f $Global:SRDSC.Module.Template
-                "{0}\Start-SRDSC.ps1" -f $Global:SRDSC.Module.Template
+            Files = @(
+                "{0}\Templates\Publish-SRAction.ps1" -f $ModuleDirectory
+                "{0}\Templates\Start-SRDSC.ps1" -f $ModuleDirectory
             )
         }
 
+        OutputPath = 'C:\Windows\Temp\'
+
     }
+            Wait-Debugger
     xDscPullServerRegistration @xDscPullServerRegistrationParams
     Start-DscConfiguration -Path 'C:\Windows\Temp' -Wait -Verbose -Force    
 
