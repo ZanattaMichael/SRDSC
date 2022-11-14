@@ -28,7 +28,7 @@ param (
 $PSObject = [PSCustomObject]@{
     DatumModulePath = $DatumModulePath
     ScriptRunnerModulePath = $ScriptRunnerModulePath
-    ScriptRunnerScriptPath = $ScriptRunnerServerPath
+    ScriptRunnerServerPath = $ScriptRunnerServerPath
     PullServerRegistrationKey = "MOCK"
     DSCPullServer = 'MOCK'
     DSCPullServerHTTP = 'http'         

@@ -1,5 +1,5 @@
 
-#Initialize-SRDSC -DatumModulePath C:\Temp -PullWebServerPath C:\Inetpub -ScriptRunnerServerScriptPath C:\Temp2 -UseSelfSignedCertificate
+#Initialize-SRDSC -DatumModulePath C:\Temp -PullWebServerPath C:\Inetpub -ScriptRunnerServerPath C:\Temp2 -UseSelfSignedCertificate
 
 function Initialize-SRDSC {
     [CmdletBinding(DefaultParameterSetName="SelfSigned")]
@@ -17,7 +17,7 @@ function Initialize-SRDSC {
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
         [Parameter(Mandatory,ParameterSetName="SelfSigned")]
         [String]
-        $ScriptRunnerServerScriptPath,
+        $ScriptRunnerServerPath,
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
         [String]
         $PFXCertificatePath,
@@ -56,7 +56,7 @@ function Initialize-SRDSC {
     $SRConfiguration = @{
         DatumModulePath = $DatumModulePath
         ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
-        ScriptRunnerServerPath = $ScriptRunnerServerScriptPath
+        ScriptRunnerServerPath = $ScriptRunnerServerPath
         PullServerRegistrationKey = [guid]::newGuid().Guid
         DSCPullServer = $ENV:COMPUTERNAME
         DSCPullServerHTTP = $(
@@ -135,15 +135,15 @@ function Initialize-SRDSC {
             ConfigurationParentPath = $ConfigurationParentPath
             ScriptRunnerDSCRepository = $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository
             Files = @(
-                "{0}\Templates\Publish-SRAction.ps1" -f $ModuleDirectory
-                "{0}\Templates\Start-SRDSC.ps1" -f $ModuleDirectory
+                "{0}\Template\Publish-SRAction.ps1" -f $ModuleDirectory
+                "{0}\Template\Start-SRDSC.ps1" -f $ModuleDirectory
             )
         }
 
         OutputPath = 'C:\Windows\Temp\'
 
     }
-            Wait-Debugger
+
     xDscPullServerRegistration @xDscPullServerRegistrationParams
     Start-DscConfiguration -Path 'C:\Windows\Temp' -Wait -Verbose -Force    
 
@@ -168,7 +168,13 @@ function Initialize-SRDSC {
         DestinationPath = $DatumModulePath
         Force = $true
     }
-    $null = Expand-Archive @archiveParams
+    
+    $zipPath = Expand-Archive @archiveParams
+
+    # Move all files up one directory
+    $null = Get-ChildItem -LiteralPath "$DatumModulePath\DscWorkshop-main" -File | Move-Item -Destination $DatumModulePath -Force
+    $null = Get-ChildItem -LiteralPath "$DatumModulePath\DscWorkshop-main" -Directory | Move-Item -Destination $DatumModulePath -Force
+    Remove-Item -LiteralPath "$DatumModulePath\DscWorkshop-main" -Force -Recurse
     
     #
     # Perform Git Initialization on Datum Source Directory
