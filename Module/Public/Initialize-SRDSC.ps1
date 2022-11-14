@@ -36,32 +36,6 @@ function Initialize-SRDSC {
     $ErrorActionPreference = "Stop"
 
     #
-    # Create Configuration file to store the datum module information
-
-    $ConfigurationPath = "{0}\PowerShell\SRDSC\Configuration.clixml" -f $Env:ProgramData
-    $ConfigurationParentPath = Split-Path $ConfigurationPath -Parent
-
-    $SRConfiguration = @{
-        DatumModulePath = $DatumModulePath
-        ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
-        ScriptRunnerServerPath = $ScriptRunnerServerScriptPath
-        ScriptRunnerServerName = $ScriptRunnerServerName
-        DSCPullServerWebAddress = $PullWebServerPath
-        PullServerRegistrationKey = [guid]::newGuid().Guid
-    }
-
-    # Set the Global Vars
-    Set-ModuleParameters @SRConfiguration
-
-    # If the folder path dosen't exist, create it.
-    if (-not(Test-Path -Literalpath $ConfigurationParentPath)) {
-        $null = New-Item -Path $ConfigurationParentPath -ItemType Directory -Force
-    }
-
-    # Export the Configuration
-    ([PSCustomObject]$SRConfiguration) | Export-Clixml -LiteralPath $ConfigurationPath
-
-    #
     # Check PowerShell Window is evelated.
     if (-not(Test-isElevated)) {
         Throw "An Elevated PowerShell Window is required to Install and Initialize a Script Runner DSC Pull Server"
@@ -73,64 +47,36 @@ function Initialize-SRDSC {
     Write-Warning "Installing ScriptRunner DSC Pull Server. Please wait:"
 
     #
-    # Ensure that PowerShellGet is up-to-date
-    if ((Get-PackageProvider PowerShellGet).Version.Major -le 1) {
-        #
-        # Using documentation from https://docs.microsoft.com/en-us/powershell/scripting/gallery/installing-psget?view=powershell-5.1
+    # Create Configuration file to store the datum module information
 
-        # Set the TLS Settings
-        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12   
-        # Update the PowerShell Package Provider, by first updating nuget
-        $null = Install-PackageProvider -Name NuGet -Force
-        # Update PowerShell Get
-        $null = Install-Module PowerShellGet -AllowClobber -Force -Confirm:$false
-        # Set the PowerShellGet Repo to be Trusted
-        $null = Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-        # Import the updated module
-        Import-Module PowerShellGet
-    }
+    $ConfigurationPath = "{0}\PowerShell\SRDSC\Configuration.clixml" -f $Env:ProgramData
+    $ConfigurationParentPath = Split-Path $ConfigurationPath -Parent
 
     #
-    # Clone the DSCWorkshop PowerShell Module (contains Datum)
-    Write-Warning "Installing DSCWorkshop:"
+    # Set the Global Vars
 
-    # Create the folder structure. If required.
-    if (Test-Path -LiteralPath $DatumModulePath) {
-        #$DatumModulePath = (New-Item -Path $DatumModulePath -ItemType Directory -Force).FullName
+    $SRConfiguration = @{
+        DatumModulePath = $DatumModulePath
+        ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
+        ScriptRunnerServerPath = $ScriptRunnerServerScriptPath
+        ScriptRunnerServerName = $ScriptRunnerServerName
+        DSCPullServerWebAddress = $PullWebServerPath
+        PullServerRegistrationKey = [guid]::newGuid().Guid
+        DSCPullServer = $ENV:COMPUTERNAME
+        DSCPullServerHTTP = $(
+            if ($UseSelfSignedCertificate.IsPresent -or $PFXCertificatePath) {
+                'https'
+            } else {
+                'http'
+            }
+        )       
     }
 
-    # Download the Datum Module into the destination folder
-    $webRequestParams = @{
-        Uri = 'https://github.com/dsccommunity/DscWorkshop/archive/refs/heads/main.zip'
-        OutFile = "{0}\DSCWorkshop.zip" -f $env:temp
-    }
-    $null = Invoke-WebRequest @webRequestParams
-    # Expand the file
-    $archiveParams = @{
-        LiteralPath = $webRequestParams.OutFile
-        DestinationPath = $DatumModulePath
-        Force = $true
-    }
-    $null = Expand-Archive @archiveParams
-    
-    #
-    # Perform Git Initialization on Datum Source Directory
-    $PreviousLocation = Get-Location 
-    Set-Location $Global:SRDSC.DatumModule.SourcePath
-    git init
+    Set-ModuleParameters @SRConfiguration
 
     #
-    # Configure Git
-    
-    git config --global user.name "SCRIPTRUNNERSERVICE" 
-    git config --global user.email ("SCRIPTRUNNERSERVICE@{0}" -f $ENV:USERDOMAIN)
-
-    #
-    # Add and Commit the files
-    git add .
-    git commit -m 'Initial Commit'
-
-    Set-Location $PreviousLocation.Path
+    # Installing DSC Pull Server
+    Write-Warning "Installing ScriptRunner DSC Pull Server. Please wait:"
 
     #
     # Load SSL Certificates
@@ -173,43 +119,80 @@ function Initialize-SRDSC {
         $certificate = Import-PfxCertificate @params
     }
 
-    #
-    # Installing DSC Pull Server
-    Write-Warning "Installing ScriptRunner DSC Pull Server. Please wait:"
+    $xDscPullServerRegistrationParams = @{
 
-    # Kick off the DSC Configuration
-    $xDscWebServiceRegistrationParams = @{
         NodeName = 'localhost'
-        RegistrationKey = $SRConfiguration.PullServerRegistrationKey
-        WebServerFilePath = $PullWebServerPath
-        CertificateThumbPrint = $certificate.Thumbprint
-        OutputPath = 'C:\Windows\Temp'
-    }
-    xDscWebServiceRegistration @xDscWebServiceRegistrationParams
-    Start-DscConfiguration -Path 'C:\Windows\Temp' -Wait -Verbose -Force
-    
-    #
-    # Create Script Runner DSC Path
-    if (Test-Path -LiteralPath $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository) {
-        $null = New-Item -Path $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository
-    }
-    
-    #
-    # Copy the Script Runner files into it's destination
+        
+        xDscWebServiceRegistrationParams = @{
 
-    $files = @(
-        "{0}\Publish-SRAction.ps1" -f $Global:SRDSC.Module.Template
-        "{0}\Start-SRDSC.ps1" -f $Global:SRDSC.Module.Template
-    )
+            RegistrationKey = $SRConfiguration.PullServerRegistrationKey
+            WebServerFilePath = $PullWebServerPath
+            CertificateThumbPrint = $certificate.Thumbprint
 
-    $params = @{
-        Path = $files
-        Destination = $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository
+        }
+
+        xDscDatumModuleRegistrationParams = @{
+            
+            DatumModulePath = $Global:SRDSC.DatumModule.DatumModulePath
+            DatumModuleTemplatePath = $Global:SRDSC.DatumModule.DatumTemplates
+            SRDSCTemplateFile = $Global:SRDSC.ScriptRunner.NodeRegistrationFile
+
+        }
+
+        xDscSRDSCModuleRegistrationParams = @{
+            ConfigurationParentPath = $ConfigurationParentPath
+            ScriptRunnerDSCRepository = $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository
+            FilesToCopy = @(
+                "{0}\Publish-SRAction.ps1" -f $Global:SRDSC.Module.Template
+                "{0}\Start-SRDSC.ps1" -f $Global:SRDSC.Module.Template
+            )
+        }
+
+    }
+    xDscPullServerRegistration @xDscPullServerRegistrationParams
+    Start-DscConfiguration -Path 'C:\Windows\Temp' -Wait -Verbose -Force    
+
+
+    #
+    # Export the Configuration
+    ([PSCustomObject]$SRConfiguration) | Export-Clixml -LiteralPath $ConfigurationPath
+
+    #
+    # Clone the DSCWorkshop PowerShell Module (contains Datum)
+    Write-Warning "Installing DSCWorkshop:"
+
+    # Download the Datum Module into the destination folder
+    $webRequestParams = @{
+        Uri = 'https://github.com/dsccommunity/DscWorkshop/archive/refs/heads/main.zip'
+        OutFile = "{0}\DSCWorkshop.zip" -f $env:temp
+    }
+    $null = Invoke-WebRequest @webRequestParams
+    # Expand the file
+    $archiveParams = @{
+        LiteralPath = $webRequestParams.OutFile
+        DestinationPath = $DatumModulePath
         Force = $true
-        Confirm = $true
     }
+    $null = Expand-Archive @archiveParams
+    
+    #
+    # Perform Git Initialization on Datum Source Directory
+    $PreviousLocation = Get-Location 
+    Set-Location $Global:SRDSC.DatumModule.SourcePath
+    git init
 
-    $null = Copy-Item @params
+    #
+    # Configure Git
+    
+    git config --global user.name "SCRIPTRUNNERSERVICE" 
+    git config --global user.email ("SCRIPTRUNNERSERVICE@{0}" -f $ENV:USERDOMAIN)
+
+    #
+    # Add and Commit the files
+    git add .
+    git commit -m 'Initial Commit'
+
+    Set-Location $PreviousLocation.Path
 
     #
     # Create the Action and Scheduled Tasks in Script Runner

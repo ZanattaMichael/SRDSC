@@ -21,7 +21,7 @@ function Publish-SRActionScript {
     $DatumConfiguration = Read-DatumConfiguration @params
     $formattedDatumParams = @{
         DatumConfiguration = $DatumConfiguration
-        NodeTemplateConfiguration = Get-NodeTemplateConfigParams -TemplateFilePath $Global:SRDSC.ScriptRunner.NodeTemplateFile
+        NodeTemplateConfiguration = Get-NodeTemplateConfigParams -TemplateFilePath $Global:SRDSC.DatumModule.NodeTemplateFile
     }
 
     $formattedDatumConfig = Format-DatumConfiguration @formattedDatumParams
@@ -45,7 +45,7 @@ function Publish-SRActionScript {
     $templateFile = $templateFile -replace '%%NODEFILEPATH%%', ('{0}\{1}.yml' -f $Global:SRDSC.DatumModule.SourcePath, $nodeFilePath.ItemScriptPath)
 
     # Interpolate the Template File path
-    $templateFile = $templateFile -replace '%%NODETEMPLATECONFIGURATION%%', $Global:SRDSC.ScriptRunner.NodeTemplateFile
+    $templateFile = $templateFile -replace '%%NODETEMPLATECONFIGURATION%%', $Global:SRDSC.DatumModule.NodeTemplateFile
 
     # Write the template file to the designated output file path.
     $templateFile | Out-File -FilePath $OutputFilePath -Force

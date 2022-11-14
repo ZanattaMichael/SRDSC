@@ -71,6 +71,8 @@ if ($LoadConfiguration.IsPresent) {
         ScriptRunnerModulePath = $CLIXML.ScriptRunnerModulePath
         ScriptRunnerServerPath = $CLIXML.ScriptRunnerServerPath
         PullServerRegistrationKey = $CLIXML.PullServerRegistrationKey
+        DSCPullServer = $CLIXML.DSCPullServer
+        DSCPullServerHTTP = $CLIXML.DSCPullServerHTTP
     }
 
     try {

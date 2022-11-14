@@ -33,6 +33,8 @@ $params = @{
     ScriptRunnerModulePath = $CLIXML.ScriptRunnerModulePath
     ScriptRunnerServerPath = $CLIXML.ScriptRunnerScriptPath
     PullServerRegistrationKey = $CLIXML.PullServerRegistrationKey
+    DSCPullServer = $CLIXML.DSCPullServer
+    DSCPullServerHTTP = $CLIXML.DSCPullServerHTTP    
 }
 
 # Load the Global Settings

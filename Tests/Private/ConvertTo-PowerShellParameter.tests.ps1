@@ -6,7 +6,7 @@ Describe "Testing ConvertTo-PowerShellParameter" {
 
         # Time to mock the context!
         $Global:SRDSC = @{
-            ScriptRunner = @{
+            DatumModule = @{
                 NodeTemplateFile = "MOCK"
             }
         }

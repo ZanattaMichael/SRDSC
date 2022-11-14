@@ -13,7 +13,13 @@ Function Set-ModuleParameters {
         $ScriptRunnerServerPath,
         [Parameter(Mandatory)]
         [String]        
-        $PullServerRegistrationKey                
+        $PullServerRegistrationKey,
+        [Parameter(Mandatory)]
+        [String]        
+        $DSCPullServer,
+        [Parameter(Mandatory)]
+        [String]        
+        $DSCPullServerHTTP
     )
 
     $Global:SRDSC = [PSCustomObject]@{
@@ -28,15 +34,19 @@ Function Set-ModuleParameters {
         }
     
         DSCPullServer = [PSCustomObject]@{
-            DSCPullServerName = 'SCRIPTRUNNER01'
+            DSCPullServerName = $DSCPullServer
             # Use a UNC path since the pull server could be on a remote host
             DSCPullServerMOFPath = 'C$\Program Files\WindowsPowerShell\DscService\Configuration\'
             DSCPullServerResourceModules = 'C$\Program Files\WindowsPowerShell\DscService\Modules\'
-            DSCPullServerWebAddress = 'http://SCRIPTRUNNER01:8080'
+            DSCPullServerWebAddress = '{0}://{0}:8080' -f $DSCPullServerHTTP, $DSCPullServer
             PullServerRegistrationKey = $PullServerRegistrationKey          
         }
 
         DatumModule = [PSCustomObject]@{
+            
+            DatumModulePath = $DatumModulePath
+            DatumTemplates = '{0}\SRDSCTemplates' -f $DatumModulePath
+            NodeTemplateFile = '{0}\SRDSCTemplates\NodeTemplateConfiguration.yml' -f $DatumModulePath
             NodeRegistrationFile = '{0}\NodeRegistration.clixml' -f $DatumModulePath
             ConfigurationPath = '{0}\' -f $DatumModulePath
             RenamedMOFOutput = '{0}\output\RenamedMOF' -f $DatumModulePath

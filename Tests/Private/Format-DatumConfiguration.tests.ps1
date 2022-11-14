@@ -3,7 +3,7 @@ Describe "Testing Format-DatumConfiguration" {
     BeforeAll {
         Backup-SRDSCState
         $Global:SRDSC = [PSCustomObject]@{
-            ScriptRunner = @{
+            DatumModule = @{
                 NodeTemplateFile = 'MOCK'
             }
         }
