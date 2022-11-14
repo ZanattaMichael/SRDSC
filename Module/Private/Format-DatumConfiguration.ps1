@@ -11,7 +11,7 @@ function Format-DatumConfiguration {
     )
 
     $result = [PSCustomObject]@{
-        TemplateFilePath = $Global:SRDSC.ScriptRunner.NodeTemplateFile
+        TemplateFilePath = $Global:SRDSC.DatumModule.NodeTemplateFile
         #
         # Format the Datum Configuration adding parameter names and values
         DatumConfiguration = $DatumConfiguration | Where-Object {$_.isVar} |
