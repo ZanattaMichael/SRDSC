@@ -19,6 +19,10 @@ function Initialize-SRDSC {
         [String]
         $ScriptRunnerServerPath,
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
+        [Parameter(Mandatory,ParameterSetName="SelfSigned")]
+        [String]
+        $ScriptRunnerURL,
+        [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
         [String]
         $PFXCertificatePath,
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
@@ -41,8 +45,14 @@ function Initialize-SRDSC {
     }
 
     #
+    # Clear out the datum directory
+    if (Test-Path -LiteralPath $DatumModulePath) {
+        $null = Remove-Item $DatumModulePath -Force -Confirm:$false -Recurse
+    }
+
+    #
     # Write installation message to the screen
-    Write-Warning "Installing ScriptRunner DSC Pull Server. Please wait:"
+    Write-Warning "[Initialize-SRDSC] Installing ScriptRunner DSC Pull Server. Please wait:"
 
     #
     # Create Configuration file to store the datum module information
@@ -65,7 +75,8 @@ function Initialize-SRDSC {
             } else {
                 'http'
             }
-        )       
+        ) 
+        ScriptRunnerURL = $ScriptRunnerURL      
     }
 
     Set-ModuleParameters @SRConfiguration
@@ -78,7 +89,7 @@ function Initialize-SRDSC {
         #
         # Generate Self Signed Certificate on the DSC Pull Server.
         # If the file already exists, stop.
-        Write-Warning "Generating Self-Signed Certificate. Please wait:"
+        Write-Warning "[Initialize-SRDSC] Generating Self-Signed Certificate. Please wait:"
 
         # Check if the certificate already exists. If so, remove them.
         Get-ChildItem Cert:\LocalMachine\ -Recurse | 
@@ -101,7 +112,7 @@ function Initialize-SRDSC {
 
         #
         # Print to the user that a third party certificate is being installed.
-        Write-Warning "Importing Third-Party Certificate. Please wait:"
+        Write-Warning "[Initialize-SRDSC] Importing Third-Party Certificate. Please wait:"
 
         $params = @{
             FilePath = $PFXCertificatePath
@@ -154,7 +165,7 @@ function Initialize-SRDSC {
 
     #
     # Clone the DSCWorkshop PowerShell Module (contains Datum)
-    Write-Warning "Installing DSCWorkshop:"
+    Write-Warning "[Initialize-SRDSC] Installing DSCWorkshop:"
 
     # Download the Datum Module into the destination folder
     $webRequestParams = @{
@@ -190,172 +201,28 @@ function Initialize-SRDSC {
 
     #
     # Add and Commit the files
-    git add .
-    git commit -m 'Initial Commit'
+    #git add .
+    #git commit -m 'Initial Commit'
 
     Set-Location $PreviousLocation.Path
 
     #
-    # Create the Action and Scheduled Tasks in Script Runner
+    # Create Script Runner Tasks
 
+    $addSRActionParams = @{
+        ScriptRunnerServer = $Global:SRDSC.ScriptRunner.ScriptRunnerWebEndpoint
+        useScheduling = $true
+    }
+
+    # Publish-SRAction - Triggers New-VirtualMachine.ps1 to be created
+    Add-ScriptRunnerAction -ScriptName 'Publish-SRAction.ps1' -RepeatMins 5 @addSRActionParams
+    # Start-SRDSC - Triggers Datum Build and Deploy Script
+    Add-ScriptRunnerAction -ScriptName 'Start-SRDSC.ps1' -RepeatMins 30 @addSRActionParams
+
+    #
+    # Create the Action and Scheduled Tasks in Script Runner
+    Write-Host "[Initialize-SRDSC] Server Completed!" -ForegroundColor Green
 
 }
 
 if ($isModule) { Export-ModuleMember -Function Initialize-SRDSC }
-
-<#
-
-
-    #
-    # Create an action in SR
-    #
-
-
-    $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-    Invoke-WebRequest -UseBasicParsing -Uri "http://scriptrunner01.contoso.local:8091/ScriptRunner/ActionContextItem/Default.CreateAction" `
-    -Method "POST" `
-    -WebSession $session `
-    -Headers @{
-    "Accept"="application/json;q=0.9, */*;q=0.1"
-      "Accept-Encoding"="gzip, deflate"
-      "Accept-Language"="en-US,en;q=0.9"
-      "OData-MaxVersion"="4.0"
-      "OData-Version"="4.0"
-      "Origin"="http://localhost"
-      "Referer"="http://localhost/"
-    } `
-    -ContentType "application/json" `
-    -Body "{`"Title`":`"Start-SRDSC`",`"OwnerID`":0,`"Comment`":`"`",`"ScriptID`":43,`"IDLIST_Tags`":`"15`"}";
-    $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-    Invoke-WebRequest -UseBasicParsing -Uri "http://scriptrunner01.contoso.local:8091/ScriptRunner/ActionContextItem/Default.CreateAction" `
-    -Method "OPTIONS" `
-    -WebSession $session `
-    -Headers @{
-    "Accept"="*/*"
-      "Accept-Encoding"="gzip, deflate"
-      "Accept-Language"="en-US,en;q=0.9"
-      "Access-Control-Request-Headers"="content-type,odata-maxversion,odata-version"
-      "Access-Control-Request-Method"="POST"
-      "Origin"="http://localhost"
-      "Referer"="http://localhost/"
-      "Sec-Fetch-Mode"="cors"
-    };
-    $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-    Invoke-WebRequest -UseBasicParsing -Uri "http://scriptrunner01.contoso.local:8091/ScriptRunner/ActionContext(22)" `
-    -Method "PATCH" `
-    -WebSession $session `
-    -Headers @{
-    "Accept"="application/json;q=0.9, */*;q=0.1"
-      "Accept-Encoding"="gzip, deflate"
-      "Accept-Language"="en-US,en;q=0.9"
-      "OData-MaxVersion"="4.0"
-      "OData-Version"="4.0"
-      "Origin"="http://localhost"
-      "Referer"="http://localhost/"
-    } `
-    -ContentType "application/json" `
-    -Body "{`"ImportModules`":`"SRDSC`",`"Insensitive`":true,`"IsScheduled`":true,`"RT_IDLIST_Targets`":`"-2`",`"RT_LIST_TargetNames`":`"Direct Service Execution`",`"Schedule`":`"M;30`",`"ScheduleEnd`":`"1999-01-01T00:00:00.000Z`"}";
-    $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-    Invoke-WebRequest -UseBasicParsing -Uri "http://scriptrunner01.contoso.local:8091/ScriptRunner/ActionContext(22)" `
-    -Method "OPTIONS" `
-    -WebSession $session `
-    -Headers @{
-    "Accept"="*/*"
-      "Accept-Encoding"="gzip, deflate"
-      "Accept-Language"="en-US,en;q=0.9"
-      "Access-Control-Request-Headers"="content-type,odata-maxversion,odata-version"
-      "Access-Control-Request-Method"="PATCH"
-      "Origin"="http://localhost"
-      "Referer"="http://localhost/"
-      "Sec-Fetch-Mode"="cors"
-    };
-    $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-    Invoke-WebRequest -UseBasicParsing -Uri "http://scriptrunner01.contoso.local:8091/ScriptRunner/ActionContext(22)" `
-    -WebSession $session `
-    -Headers @{
-    "Accept"="application/json;q=0.9, */*;q=0.1"
-      "Accept-Encoding"="gzip, deflate"
-      "Accept-Language"="en-US,en;q=0.9"
-      "OData-MaxVersion"="4.0"
-      "Origin"="http://localhost"
-      "Referer"="http://localhost/"
-    };
-    $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-    Invoke-WebRequest -UseBasicParsing -Uri "http://scriptrunner01.contoso.local:8091/ScriptRunner/ActionContextItem(22)/Default.ChangeAction" `
-    -Method "POST" `
-    -WebSession $session `
-    -Headers @{
-    "Accept"="application/json;q=0.9, */*;q=0.1"
-      "Accept-Encoding"="gzip, deflate"
-      "Accept-Language"="en-US,en;q=0.9"
-      "OData-MaxVersion"="4.0"
-      "OData-Version"="4.0"
-      "Origin"="http://localhost"
-      "Referer"="http://localhost/"
-    } `
-    -ContentType "application/json" `
-    -Body "{`"ScriptParameters`":[],`"Values`":[],`"Hides`":[],`"TypeHints`":[],`"InputRefs`":[]}";
-    $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-    Invoke-WebRequest -UseBasicParsing -Uri "http://scriptrunner01.contoso.local:8091/ScriptRunner/ActionContextItem(22)/Default.ChangeAction" `
-    -Method "OPTIONS" `
-    -WebSession $session `
-    -Headers @{
-    "Accept"="*/*"
-      "Accept-Encoding"="gzip, deflate"
-      "Accept-Language"="en-US,en;q=0.9"
-      "Access-Control-Request-Headers"="content-type,odata-maxversion,odata-version"
-      "Access-Control-Request-Method"="POST"
-      "Origin"="http://localhost"
-      "Referer"="http://localhost/"
-      "Sec-Fetch-Mode"="cors"
-    };
-    $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-    Invoke-WebRequest -UseBasicParsing -Uri "http://scriptrunner01.contoso.local:8091/ScriptRunner/ActionContextItem(22)/Default.UpdateAssignments" `
-    -Method "POST" `
-    -WebSession $session `
-    -Headers @{
-    "Accept"="application/json;q=0.9, */*;q=0.1"
-      "Accept-Encoding"="gzip, deflate"
-      "Accept-Language"="en-US,en;q=0.9"
-      "OData-MaxVersion"="4.0"
-      "OData-Version"="4.0"
-      "Origin"="http://localhost"
-      "Referer"="http://localhost/"
-    } `
-    -ContentType "application/json" `
-    -Body "{`"Assignments`":[]}";
-    $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-    Invoke-WebRequest -UseBasicParsing -Uri "http://scriptrunner01.contoso.local:8091/ScriptRunner/ActionContextItem(22)/Default.UpdateAssignments" `
-    -Method "OPTIONS" `
-    -WebSession $session `
-    -Headers @{
-    "Accept"="*/*"
-      "Accept-Encoding"="gzip, deflate"
-      "Accept-Language"="en-US,en;q=0.9"
-      "Access-Control-Request-Headers"="content-type,odata-maxversion,odata-version"
-      "Access-Control-Request-Method"="POST"
-      "Origin"="http://localhost"
-      "Referer"="http://localhost/"
-      "Sec-Fetch-Mode"="cors"
-    }
-
-#>
-
-#
-# TODO: Download DSC Pipeline from Github
-#
-# Check if DSC is installed, stop
-# Download DSC Pipeline
-
-#Configuration 
-
-# Create SR, scheduled actions (disabled) to 

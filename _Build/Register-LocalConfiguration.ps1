@@ -31,7 +31,8 @@ $PSObject = [PSCustomObject]@{
     ScriptRunnerServerPath = $ScriptRunnerServerPath
     PullServerRegistrationKey = "MOCK"
     DSCPullServer = 'MOCK'
-    DSCPullServerHTTP = 'http'         
+    DSCPullServerHTTP = 'http'  
+    ScriptRunnerURL = 'MOCK'        
 }
 
 $ConfigurationPath = "{0}\PowerShell\SRDSC\Configuration.clixml" -f $Env:ProgramData

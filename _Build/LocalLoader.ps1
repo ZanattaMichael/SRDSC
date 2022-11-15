@@ -73,6 +73,7 @@ if ($LoadConfiguration.IsPresent) {
         PullServerRegistrationKey = $CLIXML.PullServerRegistrationKey
         DSCPullServer = $CLIXML.DSCPullServer
         DSCPullServerHTTP = $CLIXML.DSCPullServerHTTP
+        ScriptRunnerURL = $CLIXML.ScriptRunnerURL  
     }
 
     try {

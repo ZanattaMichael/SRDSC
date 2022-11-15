@@ -19,7 +19,8 @@ Describe "Testing Set-Module Parameters" {
             ScriptRunnerServerPath = 'MOCK'
             PullServerRegistrationKey = 'MOCK'
             DSCPullServer = 'MOCK'
-            DSCPullServerHTTP = 'https'           
+            DSCPullServerHTTP = 'https'
+            ScriptRunnerURL = 'MOCK'   
         }
 
         #
@@ -29,6 +30,7 @@ Describe "Testing Set-Module Parameters" {
         #
         # Assert
 
+        $Global:SRDSC.ScriptRunner.ScriptRunnerURL | Should -Not -BeNullOrEmpty
         $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository | Should -Not -BeNullorEmpty
         $Global:SRDSC.ScriptRunner.NodeTemplateFile | Should -Not -BeNullorEmpty
         $Global:SRDSC.ScriptRunner.NodeRegistrationFile | Should -Not -BeNullorEmpty

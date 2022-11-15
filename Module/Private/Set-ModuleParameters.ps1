@@ -19,12 +19,16 @@ Function Set-ModuleParameters {
         $DSCPullServer,
         [Parameter(Mandatory)]
         [String]        
-        $DSCPullServerHTTP
+        $DSCPullServerHTTP,
+        [Parameter(Mandatory)]
+        [String]
+        $ScriptRunnerURL        
     )
 
     $Global:SRDSC = [PSCustomObject]@{
 
         ScriptRunner = [PSCustomObject]@{
+            ScriptRunnerURL = $ScriptRunnerURL
             ScriptRunnerDSCRepository = '{0}\ScriptMgr\DSC' -f $ScriptRunnerServerPath
             NodeTemplateFile = '{0}\Template\NodeTemplateConfiguration.yml' -f $ScriptRunnerModulePath                           
             NodeRegistrationFile = '{0}\Configuration\NodeRegistration.clixml' -f $ScriptRunnerModulePath
