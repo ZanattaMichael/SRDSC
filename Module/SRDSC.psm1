@@ -1,3 +1,16 @@
+#
+# Test if Git is Installed
+
+try {
+    git --version
+} catch {
+    Throw "Git is a requirement for SRDSC. Please install git."
+    return
+}
+
+#
+# Starting processing the module
+
 $parent = (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 # Set isModule to true to enable module member export
@@ -31,8 +44,11 @@ $CLIXML = Import-Clixml $ConfigurationPath
 $params = @{
     DatumModulePath = $CLIXML.DatumModulePath
     ScriptRunnerModulePath = $CLIXML.ScriptRunnerModulePath
-    ScriptRunnerServerPath = $CLIXML.ScriptRunnerScriptPath
+    ScriptRunnerServerPath = $CLIXML.ScriptRunnerServerPath
     PullServerRegistrationKey = $CLIXML.PullServerRegistrationKey
+    DSCPullServer = $CLIXML.DSCPullServer
+    DSCPullServerHTTP = $CLIXML.DSCPullServerHTTP
+    ScriptRunnerURL = $CLIXML.ScriptRunnerURL    
 }
 
 # Load the Global Settings

@@ -51,7 +51,6 @@ function ConvertYAMLPathTo-Parameter {
 
     # If there was no input. Throw an error.
     if ([String]::IsNullOrEmpty($output.ParameterLabel)) {
-        write-warning "ERE"
         Throw "[ConvertYAMLPathTo-Parameter] Error: No Parameter Label was generated for string ($($str))"
     }
 

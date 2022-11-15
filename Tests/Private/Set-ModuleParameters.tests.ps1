@@ -18,6 +18,9 @@ Describe "Testing Set-Module Parameters" {
             ScriptRunnerModulePath = 'MOCK'
             ScriptRunnerServerPath = 'MOCK'
             PullServerRegistrationKey = 'MOCK'
+            DSCPullServer = 'MOCK'
+            DSCPullServerHTTP = 'https'
+            ScriptRunnerURL = 'MOCK'   
         }
 
         #
@@ -27,6 +30,7 @@ Describe "Testing Set-Module Parameters" {
         #
         # Assert
 
+        $Global:SRDSC.ScriptRunner.ScriptRunnerURL | Should -Not -BeNullOrEmpty
         $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository | Should -Not -BeNullorEmpty
         $Global:SRDSC.ScriptRunner.NodeTemplateFile | Should -Not -BeNullorEmpty
         $Global:SRDSC.ScriptRunner.NodeRegistrationFile | Should -Not -BeNullorEmpty
@@ -38,6 +42,8 @@ Describe "Testing Set-Module Parameters" {
         $Global:SRDSC.DSCPullServer.DSCPullServerWebAddress | Should -Not -BeNullorEmpty
         $Global:SRDSC.DSCPullServer.PullServerRegistrationKey | Should -Not -BeNullorEmpty
 
+        $Global:SRDSC.DatumModule.DatumModulePath | Should -Not -BeNullOrEmpty
+        $Global:SRDSC.DatumModule.DatumTemplates | Should -Not -BeNullOrEmpty
         $Global:SRDSC.DatumModule.NodeRegistrationFile | Should -Not -BeNullorEmpty
         $Global:SRDSC.DatumModule.ConfigurationPath | Should -Not -BeNullorEmpty
         $Global:SRDSC.DatumModule.RenamedMOFOutput | Should -Not -BeNullorEmpty
