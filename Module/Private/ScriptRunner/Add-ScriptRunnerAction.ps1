@@ -19,6 +19,8 @@ function Add-ScriptRunnerAction {
     
     $ErrorActionPreference = 'Stop'
 
+    Write-Host "[Add-ScriptRunnerAction] Started:"
+
     #
     # Locate the Script Name
 
@@ -53,6 +55,8 @@ function Add-ScriptRunnerAction {
         ContentType = "application/json"
     }
 
+    Write-Host "[Add-ScriptRunnerAction] Creating Script Runner Action: $($actionParams.URI)"
+
     $actionObject = Invoke-RestMethod @actionParams
 
     if ($useScheduling.IsPresent) {
@@ -73,6 +77,8 @@ function Add-ScriptRunnerAction {
             UseDefaultCredentials = $true
             ContentType = "application/json"
         }
+
+        Write-Host "[Add-ScriptRunnerAction] Adding Schedule: $($actionSchedulingParams.URI)"
 
         $null = Invoke-RestMethod @actionSchedulingParams
 

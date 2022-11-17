@@ -45,6 +45,12 @@ function Initialize-SRDSC {
     }
 
     #
+    # Sanitize the Variables
+
+    # Remove any trailing slashes.
+    $ScriptRunnerURL = $ScriptRunnerURL.TrimEnd('/')
+
+    #
     # Clear out the datum directory
     if (Test-Path -LiteralPath $DatumModulePath) {
         $null = Remove-Item $DatumModulePath -Force -Confirm:$false -Recurse
@@ -190,32 +196,40 @@ function Initialize-SRDSC {
     #
     # Perform Git Initialization on Datum Source Directory
     $PreviousLocation = Get-Location 
-    Set-Location $Global:SRDSC.DatumModule.SourcePath
+    Set-Location $Global:SRDSC.DatumModule.DatumModulePath
     git init
 
     #
     # Configure Git
-    
+
+    git config core.autocrlf true
+    git config --global --add safe.directory $Global:SRDSC.DatumModule.DatumModulePath
     git config --global user.name "SCRIPTRUNNERSERVICE" 
     git config --global user.email ("SCRIPTRUNNERSERVICE@{0}" -f $ENV:USERDOMAIN)
+    git config --global --add safe.directory '*'
 
     #
     # Add and Commit the files
-    #git add .
-    #git commit -m 'Initial Commit'
+    try {
+        git add .
+    } catch {}
+    git add .
+    git commit -m 'Initial Commit'
 
     Set-Location $PreviousLocation.Path
 
     #
     # Create Script Runner Tasks
 
+    Write-Host "[Initialize-SRDSC] Publishing Scripts on the scriptrunner server:"
+
     $addSRActionParams = @{
-        ScriptRunnerServer = $Global:SRDSC.ScriptRunner.ScriptRunnerWebEndpoint
+        ScriptRunnerServer = $Global:SRDSC.ScriptRunner.ScriptRunnerURL
         useScheduling = $true
     }
 
     # Publish-SRAction - Triggers New-VirtualMachine.ps1 to be created
-    Add-ScriptRunnerAction -ScriptName 'Publish-SRAction.ps1' -RepeatMins 5 @addSRActionParams
+    Add-ScriptRunnerAction -ScriptName 'Publish-SRAction.ps1' -RepeatMins 15 @addSRActionParams
     # Start-SRDSC - Triggers Datum Build and Deploy Script
     Add-ScriptRunnerAction -ScriptName 'Start-SRDSC.ps1' -RepeatMins 30 @addSRActionParams
 

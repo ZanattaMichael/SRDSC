@@ -13,6 +13,9 @@ function List-ScriptRunnerScript {
         UseDefaultCredentials = $true
     }
     
+    Write-Host '[List-ScriptRunnerScript] Retriving Scripts from the Script Runner Server:'
+    Write-Host "[List-ScriptRunnerScript] URL: $($getScriptListParams.URL)"
+
     return (Invoke-RestMethod @getScriptListParams).value
 
 }

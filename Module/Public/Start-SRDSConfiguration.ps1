@@ -20,17 +20,24 @@ function Start-SRDSConfiguration {
     . $Global:SRDSC.DatumModule.BuildPath @PSBoundParameters
 
     #
+    # Clear out all existing MOF files to prevent existing configuration from existing
+    Write-Host "[Start-SRDSCConfiguration] Clearing out existing MOF files."
+    Write-Host "[Start-SRDSCConfiguration] $MOFDestinationDir"
+    $MOFDestinationDir | Get-ChildItem -File | Remove-Item -Force -Confirm:$false
+
+    #
     # Write Message
     Write-Host "[Start-SRDSCConfiguration] Build Completed. Processing Exportable MOF Files."
 
-    # If the MOF Registration File is missing, datum nodes aren't being deployed.
-    if (-Not(Test-Path -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile)) {
-        Throw "Missing NodeRegistrationFile"
-    }
-
     #
-    # Once the build process has been completed, load the MOF Node Registration File
-    $NodeRegistrationFile = Import-Clixml -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile
+    # If the CLIXML file is not present, not to worry! Skip it!
+    if (Test-Path -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile) {
+
+        #
+        # Once the build process has been completed, load the MOF Node Registration File
+        $NodeRegistrationFile = Import-Clixml -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile
+
+    }
 
     # Create RenamedMOFOutput directory in the output directory.    
     $MOFDestinationDir = $(
@@ -40,11 +47,6 @@ function Start-SRDSConfiguration {
             New-Item -Path $Global:SRDSC.DatumModule.RenamedMOFOutput -Type Directory -ErrorAction Stop
         }
     )
-
-    #
-    # Clear out all existing MOF files to prevent existing configuration from existing
-    Write-Host "[Start-SRDSCConfiguration] Clearing out existing MOF files."
-    $MOFDestinationDir | Get-ChildItem -File | Remove-Item -Force -Confirm:$false
 
     #
     # If the DSC Pull Server is using Registration ID's, it just needs to perform a normal copy.
