@@ -27,7 +27,7 @@ function Add-SRDSCNode {
         # Functions
         #
 
-        function $Global:Get-DscSplattedResource {
+        function Get-DscSplattedResource {
             [CmdletBinding()]
             Param(
                 [String]
@@ -121,9 +121,9 @@ function Add-SRDSCNode {
         }
 
         # Generate the Configuration MOF File
-        PullClientConfigNames -OutputPath C:\Windows\Temp\DSC\
+        PullClientConfigNames -OutputPath C:\Windows\Temp\DSC\ -ErrorAction Stop
         # Set the LocalConfiguration
-        Set-DscLocalConfigurationManager -Path C:\Windows\Temp\DSC\
+        Set-DscLocalConfigurationManager -Path C:\Windows\Temp\DSC\ -Verbose -ErrorAction Stop
         # Retrive the ConfigurationID ID
         Write-Output (Get-DscLocalConfigurationManager)
 
