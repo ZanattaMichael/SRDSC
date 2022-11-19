@@ -198,35 +198,6 @@ function Initialize-SRDSC {
     $null = Get-ChildItem -LiteralPath "$DatumModulePath\DscWorkshop-main" -Directory | Move-Item -Destination $DatumModulePath -Force
     Remove-Item -LiteralPath "$DatumModulePath\DscWorkshop-main" -Force -Recurse
     
-    <#
-
-    #
-    # Perform Git Initialization on Datum Source Directory
-    $PreviousLocation = Get-Location 
-    Set-Location $Global:SRDSC.DatumModule.DatumModulePath
-    git init
-
-    #
-    # Configure Git
-
-    git config core.autocrlf true
-    git config --global --add safe.directory $Global:SRDSC.DatumModule.DatumModulePath
-    git config --global user.name "SCRIPTRUNNERSERVICE" 
-    git config --global user.email ("SCRIPTRUNNERSERVICE@{0}" -f $ENV:USERDOMAIN)
-    git config --global --add safe.directory '*'
-
-    #
-    # Add and Commit the files
-    try {
-        git add .
-    } catch {}
-    git add .
-    git commit -m 'Initial Commit'
-
-    Set-Location $PreviousLocation.Path
-
-    #>
-
     #
     # Create Script Runner Tasks
 
