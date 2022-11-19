@@ -17,13 +17,7 @@ function Start-SRDSConfiguration {
     #
     #  Start the Build Process
 
-    . $Global:SRDSC.DatumModule.BuildPath @PSBoundParameters
-
-    #
-    # Clear out all existing MOF files to prevent existing configuration from existing
-    Write-Host "[Start-SRDSCConfiguration] Clearing out existing MOF files."
-    Write-Host "[Start-SRDSCConfiguration] $MOFDestinationDir"
-    $MOFDestinationDir | Get-ChildItem -File | Remove-Item -Force -Confirm:$false
+    $Global:SRDSC.DatumModule.BuildPath @PSBoundParameters
 
     #
     # Write Message
@@ -47,6 +41,12 @@ function Start-SRDSConfiguration {
             New-Item -Path $Global:SRDSC.DatumModule.RenamedMOFOutput -Type Directory -ErrorAction Stop
         }
     )
+
+    #
+    # Clear out all existing MOF files to prevent existing configuration from existing
+    Write-Host "[Start-SRDSCConfiguration] Clearing out existing MOF files."
+    Write-Host "[Start-SRDSCConfiguration] $MOFDestinationDir"
+    $MOFDestinationDir | Get-ChildItem -File | Remove-Item -Force -Confirm:$false    
 
     #
     # If the DSC Pull Server is using Registration ID's, it just needs to perform a normal copy.
@@ -108,6 +108,8 @@ function Start-SRDSConfiguration {
     #
     # Once that's completed, copy the MOFFiles and Resource Directories over to the DSCPullServer
 
+    Write-Host "[Start-SRDSCConfiguration] Copying MOF Files Resource Directories to the PullServer: $($MOFDestinationDir.FullName)"
+
     $MOFFileCopyParams = @{
         Destination = "\\{0}\{1}" -f 
             $Global:SRDSC.DSCPullServer.DSCPullServerName, 
@@ -131,6 +133,8 @@ function Start-SRDSConfiguration {
 
     #
     # Complete
+
+    Write-Host "[Start-SRDSCConfiguration] Completed."
 
 }
 
