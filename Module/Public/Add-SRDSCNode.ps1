@@ -109,8 +109,8 @@ function Add-SRDSCNode {
                     
                 #
                 # Onboard the machine into DSC and Return the LCM Configuration
-                x 'Settings' -Properties $DSCResourceSettings
-                x 'ConfigurationRepositoryWeb' 'PullSrv' $DSCResourceConfigurationRepositoryWeb
+                x -ResourceName 'Settings' -Properties $DSCResourceSettings
+                x -ResourceName 'ConfigurationRepositoryWeb' -ExecutionName 'PullSrv' -Properties $DSCResourceConfigurationRepositoryWeb
 
                 ReportServerWeb PullSrv
                 {
