@@ -9,15 +9,21 @@ function Add-ScriptRunnerAction {
         [Parameter(Mandatory, ParameterSetName='Scheduling')]
         [String]
         $ScriptRunnerServer,
+        [Parameter(Mandatory, ParameterSetName='Default')]
+        [Parameter(Mandatory, ParameterSetName='Scheduling')]
+        [Object]
+        $ScriptRunnerTarget,        
         [Parameter(Mandatory, ParameterSetName='Scheduling')]
         [Switch]
         $useScheduling,
         [Parameter(Mandatory, ParameterSetName='Scheduling')]
         [Int]
-        $RepeatMins        
+        $RepeatMins
     )
     
     $ErrorActionPreference = 'Stop'
+
+    Write-Host "[Add-ScriptRunnerAction] Started:"
 
     #
     # Locate the Script Name
@@ -53,30 +59,37 @@ function Add-ScriptRunnerAction {
         ContentType = "application/json"
     }
 
+    Write-Host "[Add-ScriptRunnerAction] Creating Script Runner Action: $($actionParams.URI)"
+
     $actionObject = Invoke-RestMethod @actionParams
 
-    if ($useScheduling.IsPresent) {
+    #
+    # Set Execution Location to the Script Runner Server
 
-        #
-        # Set Execution Location to the Script Runner Server
-
-        $actionSchedulingParams = @{
-            Uri = "{0}:8091/ScriptRunner/ActionContext({1})" -f $ScriptRunnerServer, $actionObject.value.id
-            Method = 'PATCH'
-            Body = @{
-                IsScheduled = $true
-                RT_IDLIST_Targets = "-2"
-                RT_LIST_TargetNames = "Direct Service Execution"
-                Schedule = "M;{0}" -f $RepeatMins
-                ScheduleEnd = "1999-01-01T00:00:00.000Z"
-            } | ConvertTo-Json
-            UseDefaultCredentials = $true
-            ContentType = "application/json"
+    $actionContextParams = @{
+        Uri = "{0}:8091/ScriptRunner/ActionContext({1})" -f $ScriptRunnerServer, $actionObject.value.id
+        Method = 'PATCH'
+        Body = @{
+            IsScheduled = $false
+            RT_IDLIST_Targets = [String]$ScriptRunnerTarget.value.ID
+            RT_LIST_TargetNames = $ScriptRunnerTarget.value.DisplayName
+            ScheduleEnd = "1999-01-01T00:00:00.000Z"
         }
-
-        $null = Invoke-RestMethod @actionSchedulingParams
-
+        UseDefaultCredentials = $true
+        ContentType = "application/json"
     }
+
+    #
+    # If scheduling was enabled, append the HTTP body.
+
+    if ($useScheduling.IsPresent) {
+        $actionContextParams.Body.IsScheduled = $true
+        $actionContextParams.Body.Schedule = "M;{0}" -f $RepeatMins
+    }
+
+    # Convert the body to JSON and invoke the REST method.
+    $actionContextParams.Body = $actionContextParams.Body | ConvertTo-Json
+    $null = Invoke-RestMethod @actionContextParams
 
     #
     # Return to the caller.

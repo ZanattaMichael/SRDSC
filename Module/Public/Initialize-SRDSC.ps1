@@ -23,6 +23,10 @@ function Initialize-SRDSC {
         [String]
         $ScriptRunnerURL,
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
+        [Parameter(Mandatory,ParameterSetName="SelfSigned")]
+        [pscredential]
+        $ScriptRunnerSACredential,
+        [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
         [String]
         $PFXCertificatePath,
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
@@ -43,6 +47,12 @@ function Initialize-SRDSC {
         Throw "An Elevated PowerShell Window is required to Install and Initialize a Script Runner DSC Pull Server"
         return
     }
+
+    #
+    # Sanitize the Variables
+
+    # Remove any trailing slashes.
+    $ScriptRunnerURL = $ScriptRunnerURL.TrimEnd('/')
 
     #
     # Clear out the datum directory
@@ -148,6 +158,7 @@ function Initialize-SRDSC {
             Files = @(
                 "{0}\Template\Publish-SRAction.ps1" -f $ModuleDirectory
                 "{0}\Template\Start-SRDSC.ps1" -f $ModuleDirectory
+                "{0}\Template\New-VirtualMachine.ps1" -f $ModuleDirectory
             )
         }
 
@@ -188,36 +199,32 @@ function Initialize-SRDSC {
     Remove-Item -LiteralPath "$DatumModulePath\DscWorkshop-main" -Force -Recurse
     
     #
-    # Perform Git Initialization on Datum Source Directory
-    $PreviousLocation = Get-Location 
-    Set-Location $Global:SRDSC.DatumModule.SourcePath
-    git init
-
-    #
-    # Configure Git
-    
-    git config --global user.name "SCRIPTRUNNERSERVICE" 
-    git config --global user.email ("SCRIPTRUNNERSERVICE@{0}" -f $ENV:USERDOMAIN)
-
-    #
-    # Add and Commit the files
-    #git add .
-    #git commit -m 'Initial Commit'
-
-    Set-Location $PreviousLocation.Path
-
-    #
     # Create Script Runner Tasks
 
+    Write-Host "[Initialize-SRDSC] Configuring Script Runner Server:"
+
     $addSRActionParams = @{
-        ScriptRunnerServer = $Global:SRDSC.ScriptRunner.ScriptRunnerWebEndpoint
+        ScriptRunnerServer = $Global:SRDSC.ScriptRunner.ScriptRunnerURL
         useScheduling = $true
     }
 
+    $commonSRParams = @{
+        ScriptRunnerServer = $Global:SRDSC.ScriptRunner.ScriptRunnerURL
+    }
+
+    # Create a ScriptRunner Credential that will be used to execute the scripts
+    $scriptRunnerCredential = New-ScriptRunnerCredential @commonSRParams -Credential $ScriptRunnerSACredential
+    # Create a ScriptRunner Target for the Scripts to use
+    $scriptRunnerTarget = New-ScriptRunnerTarget @commonSRParams -ScriptRunnerCredential $scriptRunnerCredential
+    $addSRActionParams.ScriptRunnerTarget = $scriptRunnerTarget
+
     # Publish-SRAction - Triggers New-VirtualMachine.ps1 to be created
-    Add-ScriptRunnerAction -ScriptName 'Publish-SRAction.ps1' -RepeatMins 5 @addSRActionParams
+    Add-ScriptRunnerAction -ScriptName 'Publish-SRAction.ps1' -RepeatMins 15 @addSRActionParams
     # Start-SRDSC - Triggers Datum Build and Deploy Script
     Add-ScriptRunnerAction -ScriptName 'Start-SRDSC.ps1' -RepeatMins 30 @addSRActionParams
+    # New-VirtualMachine - Triggers automatic build and deploy
+    $addSRActionParams.Remove('useScheduling')
+    Add-ScriptRunnerAction -ScriptName 'New-VirtualMachine.ps1' @addSRActionParams
 
     #
     # Create the Action and Scheduled Tasks in Script Runner

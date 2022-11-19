@@ -109,8 +109,8 @@ function Add-SRDSCNode {
                     
                 #
                 # Onboard the machine into DSC and Return the LCM Configuration
-                x 'Settings' -Properties $DSCResourceSettings
-                x 'ConfigurationRepositoryWeb' 'PullSrv' $DSCResourceConfigurationRepositoryWeb
+                x -ResourceName 'Settings' -Properties $DSCResourceSettings
+                x -ResourceName 'ConfigurationRepositoryWeb' -ExecutionName 'PullSrv' -Properties $DSCResourceConfigurationRepositoryWeb
 
                 ReportServerWeb PullSrv
                 {
@@ -121,9 +121,9 @@ function Add-SRDSCNode {
         }
 
         # Generate the Configuration MOF File
-        PullClientConfigNames -OutputPath C:\Windows\Temp\DSC\
+        PullClientConfigNames -OutputPath C:\Windows\Temp\DSC\ -ErrorAction Stop
         # Set the LocalConfiguration
-        Set-DscLocalConfigurationManager -Path C:\Windows\Temp\DSC\
+        Set-DscLocalConfigurationManager -Path C:\Windows\Temp\DSC\ -Verbose -ErrorAction Stop
         # Retrive the ConfigurationID ID
         Write-Output (Get-DscLocalConfigurationManager)
 
