@@ -17,7 +17,7 @@ function Start-SRDSConfiguration {
     #
     #  Start the Build Process
 
-    $Global:SRDSC.DatumModule.BuildPath @PSBoundParameters
+    . $Global:SRDSC.DatumModule.BuildPath @PSBoundParameters
 
     #
     # Write Message

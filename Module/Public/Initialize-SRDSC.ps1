@@ -23,6 +23,10 @@ function Initialize-SRDSC {
         [String]
         $ScriptRunnerURL,
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
+        [Parameter(Mandatory,ParameterSetName="SelfSigned")]
+        [pscredential]
+        $ScriptRunnerSACredential,
+        [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
         [String]
         $PFXCertificatePath,
         [Parameter(Mandatory,ParameterSetName="ThirdPartySSL")]
@@ -154,6 +158,7 @@ function Initialize-SRDSC {
             Files = @(
                 "{0}\Template\Publish-SRAction.ps1" -f $ModuleDirectory
                 "{0}\Template\Start-SRDSC.ps1" -f $ModuleDirectory
+                "{0}\Template\New-VirtualMachine.ps1" -f $ModuleDirectory
             )
         }
 
@@ -225,19 +230,30 @@ function Initialize-SRDSC {
     #
     # Create Script Runner Tasks
 
-    Write-Host "[Initialize-SRDSC] Publishing Scripts on the scriptrunner server:"
+    Write-Host "[Initialize-SRDSC] Configuring Script Runner Server:"
 
     $addSRActionParams = @{
         ScriptRunnerServer = $Global:SRDSC.ScriptRunner.ScriptRunnerURL
         useScheduling = $true
     }
 
+    $commonSRParams = @{
+        ScriptRunnerServer = $Global:SRDSC.ScriptRunner.ScriptRunnerURL
+    }
+
+    # Create a ScriptRunner Credential that will be used to execute the scripts
+    $scriptRunnerCredential = New-ScriptRunnerCredential @commonSRParams -Credential $ScriptRunnerSACredential
+    # Create a ScriptRunner Target for the Scripts to use
+    $scriptRunnerTarget = New-ScriptRunnerTarget @commonSRParams -ScriptRunnerCredential $scriptRunnerCredential
+    $addSRActionParams.ScriptRunnerTarget = $scriptRunnerTarget
+
     # Publish-SRAction - Triggers New-VirtualMachine.ps1 to be created
     Add-ScriptRunnerAction -ScriptName 'Publish-SRAction.ps1' -RepeatMins 15 @addSRActionParams
     # Start-SRDSC - Triggers Datum Build and Deploy Script
     Add-ScriptRunnerAction -ScriptName 'Start-SRDSC.ps1' -RepeatMins 30 @addSRActionParams
-    # Invoke Publish-SRAction to create the New-VMScript
-    #Invoke-ScriptRunnerScript -ScriptName 'Publish-SRAction.ps1' -ScriptRunnerServer $Global:SRDSC.ScriptRunner.ScriptRunnerURL
+    # New-VirtualMachine - Triggers automatic build and deploy
+    $addSRActionParams.Remove('useScheduling')
+    Add-ScriptRunnerAction -ScriptName 'New-VirtualMachine.ps1' @addSRActionParams
 
     #
     # Create the Action and Scheduled Tasks in Script Runner
