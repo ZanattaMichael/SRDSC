@@ -53,6 +53,7 @@ ForEach ($ParameterName in $ScriptParameterData.Parameters) {
 #
 # Onboard the Virtual Machine into Desired State Configuration
 
+$ErrorActionPreference = 'Stop'
 Add-SRDSCNode -NodeName $NodeName -DSCPullServer $Global:SRDSC.DSCPullServer.DSCPullServerName
 
 #

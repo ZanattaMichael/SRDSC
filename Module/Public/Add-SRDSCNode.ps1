@@ -27,7 +27,7 @@ function Add-SRDSCNode {
         # Functions
         #
 
-        function Get-DscSplattedResource {
+        function $Global:Get-DscSplattedResource {
             [CmdletBinding()]
             Param(
                 [String]

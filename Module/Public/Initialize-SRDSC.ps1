@@ -193,6 +193,8 @@ function Initialize-SRDSC {
     $null = Get-ChildItem -LiteralPath "$DatumModulePath\DscWorkshop-main" -Directory | Move-Item -Destination $DatumModulePath -Force
     Remove-Item -LiteralPath "$DatumModulePath\DscWorkshop-main" -Force -Recurse
     
+    <#
+
     #
     # Perform Git Initialization on Datum Source Directory
     $PreviousLocation = Get-Location 
@@ -218,6 +220,8 @@ function Initialize-SRDSC {
 
     Set-Location $PreviousLocation.Path
 
+    #>
+
     #
     # Create Script Runner Tasks
 
@@ -232,6 +236,8 @@ function Initialize-SRDSC {
     Add-ScriptRunnerAction -ScriptName 'Publish-SRAction.ps1' -RepeatMins 15 @addSRActionParams
     # Start-SRDSC - Triggers Datum Build and Deploy Script
     Add-ScriptRunnerAction -ScriptName 'Start-SRDSC.ps1' -RepeatMins 30 @addSRActionParams
+    # Invoke Publish-SRAction to create the New-VMScript
+    #Invoke-ScriptRunnerScript -ScriptName 'Publish-SRAction.ps1' -ScriptRunnerServer $Global:SRDSC.ScriptRunner.ScriptRunnerURL
 
     #
     # Create the Action and Scheduled Tasks in Script Runner
