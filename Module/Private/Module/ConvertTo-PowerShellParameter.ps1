@@ -5,8 +5,8 @@ function ConvertTo-PowerShellParameter {
 This function takes the formatted Datum (Containing enumerated values) and Template configuration
 and constructs PowerShell parameters that can be used by the 'New-VirtualMachine' PowerShell Script.
 It's important to understand that datum is the authortative winner for duplicate items with the node template
-file, unless the node template has '%%SR_PARAM_OVERRIDE%%' written in the value.
-The reason why this is the case is because 'NODE NAME' is something that needs to be prompted for user input,
+file, unless the node template has '%%SR_PARAM_OVERRIDE%%' set in the value.
+This is to address pre-existing datum paramters (i.e NodeName) that should be prompted for user input,
 otherwise the script would only allow you to select existing nodes that are present in the configuration.
 (Not useful, when your trying to create a new machine)
 
@@ -16,9 +16,14 @@ For it to accuratly to join the parameters together, it needs to perform the fol
    the node template configuration dosen't have 'SR_PARAM_OVERRIDE' specified.)
 2. Retrive all the Node Template Configuration Parameters that aren't authoritative (or not in the authoritative list).
 3. Iterate through all the enumerate non-authoritative Node Template Configuration Paramters
-   and construct the PowerShell parameter. During this process it also appends the (Deseralized YAML)
-   PowerShell Object path as JSON into the parameter. The generated script can uses this data to 
-   locate and set the paramter value within the Node Template Configuration.
+   and construct the PowerShell parameter.
+   
+   During this process it also serializes the (YAML) the Parameter Name and PowerShell .NET property
+   path the the matching object as JSON.
+
+   Note The generated script can uses this data to locate and set the paramter value within the Node Template Configuration.
+   (See Get-ASScriptParameters)
+   
 4. Iterate through all the authoritative datum configuration paramters and construct paramters
    with prefilled data stored as values within the ValidateSet attribute
 5. Return the string back to the caller.
