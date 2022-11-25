@@ -1,4 +1,39 @@
 function ConvertYAMLPathTo-Parameter {
+<#
+.Description
+Paramters that are defined within the Node Template Configuration is dynamic.
+This function dynamically generates parameters based on the _YAMLPath property 
+('$MOCK."Array"[5]."Array"[1]."Property"') value, so it can be used within 
+the New-VirtualMachine.ps1 script.
+
+The function performs this task by performing the following logic:
+
+1. Splitting out the _YAMLPath property value by periods ('.')
+   '$MOCK."Array"[5]."Array"[1]."Property"' would be broken-down into:
+
+        a) '$MOCK'
+        b) "Array"[5]
+        c) "Array"[1]
+        d) "Property"
+
+1. Iterate through each of these elements and:
+    a. Try and identify if the element contains an array (i.e [1], [2]).
+       If an array is found, then the array is appended to the 
+    b. Otherwise the last property is added.
+
+Note: Only the array items are appended to the paramter, subsequent properties are skipped.
+For example:
+
+'$MOCK."Object1"."Array"[1]."Object2"."Property"' will be: 'Array1Property'
+That's because the logic will take the array item and then skip subsequent properties.
+
+.PARAMETER Str
+The value of _YAMLPath
+.EXAMPLE
+'$MOCK."Array"[5]."Array"[1]."Property"' | ConvertYAMLPathTo-Parameter
+.SYNOPSIS
+Converts _YAMLPath property values into a Dynamic Paramter.
+#>    
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipeline)]

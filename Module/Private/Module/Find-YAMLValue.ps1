@@ -1,4 +1,26 @@
 function Find-YamlValue {
+<#
+.Description
+This function is used to find all the YAML object paths that contain a specific string.
+In this case the script uses this function to searches the Node Template Configuration
+for '%%' (Denoting static entries).
+
+This function uses the _YAMLPath property on a Formatted YAML Object (Format-YAMLObject)
+to return the object path. It performs the search by recursivly through the entire
+YAML Object looking at the values, when a value is matched (using regex), it's value and 
+it's property path (_YAMLPath) is returned to the caller.
+
+.PARAMETER YAMLObject
+The Input Yaml Object. This object MUST be formatted with Format-YamlObject
+.PARAMETER ValueToFind
+Regex search string
+.EXAMPLE
+Find-YamlValue -YAMLObject $FormattedYAMLTemplate -ValueToFind '%%' 
+.SYNOPSIS
+Performs a search in a deseralized formatted YAML Object for a value and returns the _YAMLPATH
+to the caller.
+#>
+
     [CmdletBinding()]
     param (
         [Object]$YAMLObject,
