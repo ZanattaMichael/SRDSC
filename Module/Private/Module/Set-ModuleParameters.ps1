@@ -1,5 +1,60 @@
 
 Function Set-ModuleParameters {
+<#
+.Description
+Set-ModuleParamters is used by SRDSC to store the global configuration that's used within the module.
+When the module is loaded the first time, it's statically loaded and the paramters needed for the configuration
+is exported to C:\ProgramData\. Each subsequent time following that, the module loads the configuration
+from the C:\ProgramData programatically.
+
+.PARAMETER DatumModulePath
+
+Datum Module File Path
+
+.PARAMETER ScriptRunnerModulePath
+
+SRDSC Module Path
+
+.PARAMETER ScriptRunnerServerPath
+
+Script Runner Server Script Repository Path
+
+.PARAMETER PullServerRegistrationKey
+
+Pull Server Registration Key
+
+.PARAMETER DSCPullServer
+
+Pull Server Name
+
+.PARAMETER DSCPullServerHTTP
+
+Pull Server URL
+
+.PARAMETER ScriptRunnerURL
+
+Script Runner URL Endpoint
+
+.EXAMPLE
+
+$CliXML = Import-Clixml $ConfigurationPath
+
+$params = @{
+    DatumModulePath = $CliXML.DatumModulePath
+    ScriptRunnerModulePath = $CliXML.ScriptRunnerModulePath
+    ScriptRunnerServerPath = $CliXML.ScriptRunnerServerPath
+    PullServerRegistrationKey = $CliXML.PullServerRegistrationKey
+    DSCPullServer = $CliXML.DSCPullServer
+    DSCPullServerHTTP = $CliXML.DSCPullServerHTTP
+    ScriptRunnerURL = $CliXML.ScriptRunnerURL    
+}
+
+# Load the Global Settings
+Set-ModuleParameters @params
+
+.SYNOPSIS
+Set's Global Configuration paramters used by the SRDSC Module.
+#>    
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
