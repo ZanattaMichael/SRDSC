@@ -1,5 +1,16 @@
 #region ConvertTo-PlainText
 function ConvertTo-PlainText {
+<#
+.Description
+Converts [SecureString] into Plain Text ([String])
+.PARAMETER SecureString
+The Secure String to Decrypt
+.EXAMPLE
+$SecureString | ConvertTo-PlainText
+.SYNOPSIS
+Converts [SecureString] into Plain Text ([String])
+#>
+
     param (
         [parameter(Mandatory, ValueFromPipeline)]
         [SecureString]

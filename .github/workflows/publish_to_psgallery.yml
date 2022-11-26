@@ -1,0 +1,36 @@
+name: PublishToPSGallery
+
+on:
+  release:
+    types: [published]
+jobs:
+  psgallery_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+    
+      - name: Install Powershell-Yaml and xPSDesiredStateConfiguration
+        run:
+          Write-host $PSVersionTable.PSVersion.Major $PSVersionTable.PSRemotingProtocolVersion.Minor;
+          Set-PSRepository psgallery -InstallationPolicy trusted;
+          Install-Module Selenium -Confirm:$false -Force;
+          Install-Module xPSDesiredStateConfiguration -Confirm:$false -Force;
+        shell: pwsh
+
+      - name: Building
+        run: |
+          .\Build\BuildModule.ps1 
+        shell: pwsh        
+
+      - name: Publishing
+        run:
+          $params = @{
+            Path = '.\Build\SRDSC';
+            NuGetApiKey = '${{ secrets.PSGALLERY }}';
+            Tags = "ScriptRunner","DSC";
+            ProjectUri = [uri]::new('https://github.com/ZanattaMichael/SRDSC');
+            LicenseUri = [uri]::new('https://github.com/ZanattaMichael/SRDSC/blob/master/LICENSE');
+          };
+          Publish-Module @params;
+        shell: pwsh

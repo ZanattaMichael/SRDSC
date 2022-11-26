@@ -32,7 +32,15 @@ describe "Testing ConvertYAMLPathTo-Parameter" {
                 String = $null
                 ParameterLabel = 'Array1Property'
             }       
-        }        
+        }    
+        @{
+            Name = 'Testing Single Array 2 Property'
+            Path = '$MOCK."Object1"."Array"[1]."Object2"."Property"'
+            expectedResult = @{
+                String = $null
+                ParameterLabel = 'Array1Property'
+            }       
+        }              
         @{
             Name = 'Testing Single Array Property (Multiple Index)'
             Path = '$MOCK."Array"[5]."Array"[1]."Property"'
@@ -41,6 +49,14 @@ describe "Testing ConvertYAMLPathTo-Parameter" {
                 ParameterLabel = 'Array5Array1Property'
             }       
         }  
+        @{
+            Name = 'Testing Nested Object Property'
+            Path = '$MOCK."Object1"."Object2"."Property"'
+            expectedResult = @{
+                String = $null
+                ParameterLabel = 'Property'
+            }       
+        }         
         @{
             Name = 'Testing Single Property (with double periods - slightly malformed)'
             Path = '$MOCK."Array"[1].."Property"'

@@ -1,4 +1,18 @@
 Function Test-ProxyConnection {
+<#
+.Description
+Test for a proxy server and attempt to authenticate to it.
+.PARAMETER uri
+
+URL to test.
+
+.EXAMPLE
+
+    Test-ProxyConnection
+
+.SYNOPSIS
+Test for a proxy server and attempt to authenticate to it.
+#>     
     param (
         [parameter(Mandatory = $false, Position = 0)]
         [string]

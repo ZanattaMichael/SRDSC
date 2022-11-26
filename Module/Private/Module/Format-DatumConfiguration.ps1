@@ -1,10 +1,38 @@
 function Format-DatumConfiguration {
+<#
+.Description
+Format-DatumConfiguration is the secondary merge (Read-DatumConfiguration being the first) combining
+the Datum Configuration with the Node Template Configuration and formatting it.
+The function creates an object with a formatted Parameter Name,
+Parameter Value and isOverwritten booleen value. The isOverwritten property is used to identify 
+if a Datum Parameter has been declared in the Node Template Configuration and if the matching
+Note Template Configuration parameter is authoratitive over Datum. Remember, Datum Configuration
+parameters have higher precidence over the node template configuration.
+The Node Template Configuration is added to the output object under the TemplateConfiguration property.
+
+.PARAMETER DatumConfiguration
+Datum Object Data returned from Read-DatumConfiguration
+.PARAMETER NodeTemplateConfiguration
+Node Template Configuration Object Data from Get-NodeTemplateConfigParams
+.EXAMPLE
+    $formattedDatumParams = @{
+        DatumConfiguration = $DatumConfiguration
+        NodeTemplateConfiguration = Get-NodeTemplateConfigParams `
+            -TemplateFilePath   $Global:SRDSC.DatumModule.NodeTemplateFile
+    }
+
+    $formattedDatumConfig = Format-DatumConfiguration @formattedDatumParams
+
+.SYNOPSIS
+Formats Datum Configuration with the Node Template Configuration
+#>    
     [CmdletBinding()]
     param (
         # Datum Configuration
         [Parameter(Mandatory, ValueFromPipeline)]
         [Object]
         $DatumConfiguration,
+        # Node Template Configuration
         [Parameter(Mandatory)]
         [PSCustomObject[]]
         $NodeTemplateConfiguration
