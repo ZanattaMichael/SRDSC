@@ -33,10 +33,10 @@ $ModuleManifestParams = @{
 #
 # Locate all functions that need to be exported.
 
-Get-ChildItem 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner\Module\Public' -Recurse -File | Select-Object {
+Get-ChildItem "$ModuleDirectory\Public" -Recurse -File | Select-Object {
     $ModuleManifestParams.FunctionsToExport += $_.BaseName
 }
-Get-ChildItem 'D:\Git\DSC-ScriptRunner\DSC-ScriptRunner\Module\Private' -Recurse -File | ForEach-Object {
+Get-ChildItem "$ModuleDirectory\Public" -Recurse -File | ForEach-Object {
     if ((Get-Content $_.FullName) -match 'Export-ModuleMember') {
         $ModuleManifestParams.FunctionsToExport += $_.BaseName
     }
