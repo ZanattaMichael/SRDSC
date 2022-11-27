@@ -14,7 +14,7 @@ jobs:
         run:
           Write-host $PSVersionTable.PSVersion.Major $PSVersionTable.PSRemotingProtocolVersion.Minor;
           Set-PSRepository psgallery -InstallationPolicy trusted;
-          Install-Module xPSDesiredStateConfiguration -Confirm:$false -Force;
+          Install-Module xPSDesiredStateConfiguration,powershell-yaml -Confirm:$false -Force;
         shell: pwsh
 
       - name: Building
