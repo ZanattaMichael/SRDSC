@@ -26,7 +26,7 @@ jobs:
       - name: Publishing
         run:
           $params = @{
-            Path = '.\Build\SRDSC';
+            Path = '.\_Build\SRDSC';
             NuGetApiKey = '${{ secrets.PSGALLERY }}';
             Tags = "ScriptRunner","DSC";
             ProjectUri = [uri]::new('https://github.com/ZanattaMichael/SRDSC');
