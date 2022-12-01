@@ -34,7 +34,7 @@ Get-ChildItem -LiteralPath (Join-Path $parent -ChildPath 'Public') -Recurse -Fil
 $ConfigurationPath = "{0}\PowerShell\SRDSC\Configuration.clixml" -f $Env:ProgramData
 
 if (-not(Test-Path -LiteralPath $ConfigurationPath)) {
-    Write-Warning "Module Loaded: Use Initialize-SRDSC to setup and configure the module."
+    Write-Host "Module Loaded: Use Initialize-SRDSC to setup and configure the module." -ForegroundColor Green
     return
 }
 
@@ -53,4 +53,3 @@ $params = @{
 
 # Load the Global Settings
 Set-ModuleParameters @params
-
