@@ -4,7 +4,7 @@
 try {
     git --version
 } catch {
-    Throw "Git is a requirement for SRDSC. Please install git."
+    Throw "Git is required for SRDSC. Please install git."
     return
 }
 
@@ -53,3 +53,4 @@ $params = @{
 
 # Load the Global Settings
 Set-ModuleParameters @params
+

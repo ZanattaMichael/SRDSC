@@ -1,4 +1,41 @@
 function Add-SRDSCNode {
+<#
+.Description
+Onboards an Datum Node Endpoint into the DSC Pull Server.
+The calling process uses PowerShell remoting to configure the endpoint (ensure that PowerShell Remoting is enabled on the endpoint).
+The command supports ConfigurationID and Registration Key (Preferred).
+If using a ConfigurationID upon registration, will capture and store the Configuration ID locally on the Pull Server, so the build script can associate the NODE to it's Configuration ID.
+The Registration Key is the preferred way. It onboard the endpoint node and set's the Configuation Name to the  .
+
+If a Pull Server has already been configured on the LCM endpoint, the process won't perform the onboarding process, however it will still return the ConfigurationID.
+
+.PARAMETER NodeName
+The ComputerName Endpoint.
+
+.PARAMETER DSCPullServer
+The PullServer URL Location
+
+.PARAMETER UseConfigurationIDs
+A switch to register the endpoint using ConfigurationIDs, instead of a Pull Server Registration Key.
+
+.PARAMETER Force
+Overwrite any existing LCM configuration and onboard the Node onto the new DSC Pull Server.
+
+.EXAMPLE
+
+Add-SRDSCNode -NodeName 'NODE01' -DSCPullServer 'HTTP://DSCPULLSERVER01' -Force
+
+Forcibly Adds 'NODE01' to the DSCPullServer 'HTTP://DSCPULLSERVER01'
+
+.EXAMPLE
+
+Add-SRDSCNode -NodeName 'NODE01' -DSCPullServer 'HTTP://DSCPULLSERVER01'
+
+Adds 'NODE01' to the DSCPullServer 'HTTP://DSCPULLSERVER01'. If an LCM configuration already exists, stop.
+
+.SYNOPSIS
+Onboards an Endpoint Node into the DSC Pull Server.
+#>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
