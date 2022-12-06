@@ -4,6 +4,7 @@ Write-Verbose "Building PowerShell Module:"
 
 $BuildDirectory = Split-Path -parent $PSCommandPath
 $BuildModuleDirectory = [System.IO.Path]::Join($BuildDirectory, "SRDSC")
+$BuildModulePSMFile = [System.IO.Path]::Join($BuildModuleDirectory, "SRDSC.psm1")
 $BuildModulePSDFile = [System.IO.Path]::Join($BuildModuleDirectory, "SRDSC.psd1")
 
 $ModuleDirectory = [System.IO.Path]::Join((Split-Path $BuildDirectory -Parent),'Module')
@@ -61,4 +62,7 @@ if ($ModuleVersion -match '\-\w+') {
     (Get-Content -LiteralPath $BuildModulePSDFile) -replace "# Prerelease = ''", "Prerelease = '$value'" |
     Set-Content -LiteralPath $BuildModulePSDFile
     
+    'Write-Warning ''You are running a pre-release version of SRDSC. Please post bugs/issues to: "https://github.com/ZanattaMichael/SRDSC"''' |
+    Add-Content -LiteralPath $BuildModulePSMFile
+
 }

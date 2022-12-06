@@ -4,7 +4,7 @@
 try {
     git --version
 } catch {
-    Throw "Git is a requirement for SRDSC. Please install git."
+    Throw "Git is required for SRDSC. Please install git."
     return
 }
 
@@ -34,7 +34,7 @@ Get-ChildItem -LiteralPath (Join-Path $parent -ChildPath 'Public') -Recurse -Fil
 $ConfigurationPath = "{0}\PowerShell\SRDSC\Configuration.clixml" -f $Env:ProgramData
 
 if (-not(Test-Path -LiteralPath $ConfigurationPath)) {
-    Write-Warning "Module Loaded: Use Initialize-SRDSC to setup and configure the module."
+    Write-Host "Module Loaded: Use Initialize-SRDSC to setup and configure the module." -ForegroundColor Green
     return
 }
 

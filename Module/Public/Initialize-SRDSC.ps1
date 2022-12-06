@@ -1,7 +1,98 @@
-
-#Initialize-SRDSC -DatumModulePath C:\Temp -PullWebServerPath C:\Inetpub -ScriptRunnerServerPath C:\Temp2 -UseSelfSignedCertificate
-
 function Initialize-SRDSC {
+<#
+.Description
+Initalize-SRDSC is used for onboarding the ScriptRunner Server into DSC.
+It performs the following tasks:
+
+1. Installs the DSC Pull Server.
+2. Downloads and Install's Datum onto the ScriptRunner Server (DSC Toolbox).
+3. Sets SRDSC Configuration setting key properties that are used by the SRDSC Build Scripts.
+4. Copies SRDSC Scripts into the ScriptRunner repository (in ProgramData).
+5. Creates ScriptRunner Service Account Credential.
+6. Creates ScriptRunner Local Machine Target with the DSC Service Account Credential.
+7. Adds Start-SRDSCConfiguration and Publish-SRActionScript scripts into ScriptRunner and configures the target and sets a reoccuring schedule.
+
+To initialize the script requires a number of parameters that are needed for execution.
+These are:
+
+-DatumModulePath: This is the destination path where the Datum Module is to be installed.
+-PullWebServerPath: This is the destination path of the IIS instance (C:\Inetpub\).
+-ScriptRunnerServerPath: The directory path of the ScriptRunner Script Repository (Usually Located at C:\ProgramData\).  
+-ScriptRunnerURL: The URL to the ScriptRunner server.
+-ScriptRunnerSACredential: A username/password used by ScriptRunner to Execute the ScriptRunner Script.
+-PFXCertificatePath: (Used for the ScriptRunner Pull Server) If a custom SSL certificate is required, the path to that certificate is specified.
+-PFXCertificatePassword: The Export password for the custom SSL certificate.
+-UseSelfSignedCertificate: (Used for the ScriptRunner Pull Server) Use a Self-Signed certificate for the DSC Pull Server.
+
+.PARAMETER DatumModulePath
+
+This is the destination path where the Datum Module is to be installed.
+
+.PARAMETER PullWebServerPath
+
+This is the destination path of the IIS instance (C:\Inetpub\).
+
+.PARAMETER ScriptRunnerServerPath
+
+The directory path of the ScriptRunner Script Repository (Usually Located at C:\ProgramData\).  
+
+.PARAMETER ScriptRunnerURL
+
+The URL to the ScriptRunner server.
+
+.PARAMETER ScriptRunnerSACredential
+
+A username/password used by ScriptRunner to Execute the ScriptRunner Script.
+
+.PARAMETER PFXCertificatePath
+
+(Used for the ScriptRunner Pull Server) If a custom SSL certificate is required, the path to that certificate is specified.
+
+.PARAMETER PFXCertificatePassword
+
+The Export Password for the custom SSL certificate.
+
+.PARAMETER UseSelfSignedCertificate
+
+(Used for the ScriptRunner Pull Server) Use a Self-Signed certificate for the DSC Pull Server.
+
+.EXAMPLE
+
+Create a DSC Pull Server (installed at C:\Inetpub) on the local ScriptRunner server (http://SCRIPTRUNNER01/', 
+with a custom Certificate located at C:\MyCertificate.pfx.
+The PowerShell Datum module is installed at C:\Temp.
+
+$params = @{
+    DatumModulePath = 'C:\Temp'
+    PullWebServerPath = 'C:\Inetpub'
+    ScriptRunnerServerPath = 'C:\ProgramData\ScriptRunner' 
+    ScriptRunnerURL = 'http://SCRIPTRUNNER01/'
+    ScriptRunnerSACredential = (Get-Credential)
+    PFXCertificatePath = "C:\MyCertificate.pfx"
+    PFXCertificatePassword  = '123Password' | ConvertTo-SecureString -AsPlainText -Force
+}
+
+Initialize-SRDSC @params
+
+.EXAMPLE
+
+Create a DSC Pull Server (installed at C:\Inetpub) on the local ScriptRunner server (http://SCRIPTRUNNER01/', 
+with a self-signed certificate. The PowerShell Datum module is installed at C:\Temp.
+
+$params = @{
+    DatumModulePath = 'C:\Temp'
+    PullWebServerPath = 'C:\Inetpub'
+    ScriptRunnerServerPath = 'C:\ProgramData\ScriptRunner' 
+    ScriptRunnerURL = 'http://SCRIPTRUNNER01/'
+    ScriptRunnerSACredential = (Get-Credential)
+    UseSelfSignedCertificate = $true
+}
+
+Initialize-SRDSC @params
+
+.SYNOPSIS
+Onboarding script to install DSC Pull Server, Datum, and ScriptRunner Scripts.
+#>
     [CmdletBinding(DefaultParameterSetName="SelfSigned")]
     param (
         # Datum Install Directory
@@ -44,7 +135,7 @@ function Initialize-SRDSC {
     #
     # Check PowerShell Window is evelated.
     if (-not(Test-isElevated)) {
-        Throw "An Elevated PowerShell Window is required to Install and Initialize a Script Runner DSC Pull Server"
+        Throw "An Elevated PowerShell Window is required to Install and Initialize a ScriptRunner DSC Pull Server"
         return
     }
 
@@ -199,9 +290,9 @@ function Initialize-SRDSC {
     Remove-Item -LiteralPath "$DatumModulePath\DscWorkshop-main" -Force -Recurse
     
     #
-    # Create Script Runner Tasks
+    # Create ScriptRunner Tasks
 
-    Write-Host "[Initialize-SRDSC] Configuring Script Runner Server:"
+    Write-Host "[Initialize-SRDSC] Configuring ScriptRunner Server:"
 
     $addSRActionParams = @{
         ScriptRunnerServer = $Global:SRDSC.ScriptRunner.ScriptRunnerURL
@@ -227,7 +318,7 @@ function Initialize-SRDSC {
     Add-ScriptRunnerAction -ScriptName 'New-VirtualMachine.ps1' @addSRActionParams
 
     #
-    # Create the Action and Scheduled Tasks in Script Runner
+    # Create the Action and Scheduled Tasks in ScriptRunner
     Write-Host "[Initialize-SRDSC] Server Completed!" -ForegroundColor Green
 
 }
