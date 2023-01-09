@@ -17,8 +17,9 @@ function New-ScriptRunnerTarget {
         Uri = "{0}:8091/ScriptRunner/TargetItem/Default.CreateTarget" -f $ScriptRunnerServerURL
         Method = 'POST'
         Body = @{
-            Comment = ""
-            ComputerName = ""
+            Comment = "This is used by automated SRDSC to create, deploy and update DSC."
+            # . is Simple Run-as Process Mode
+            ComputerName = "."
             DisplayName = "DSC Pull Services"
             OwnerID = 0
             TagNames = @(
