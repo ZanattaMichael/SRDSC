@@ -37,7 +37,7 @@ $ModuleManifestParams = @{
 Get-ChildItem "$ModuleDirectory\Public" -Recurse -File | Select-Object {
     $ModuleManifestParams.FunctionsToExport += $_.BaseName
 }
-Get-ChildItem "$ModuleDirectory\Public" -Recurse -File | ForEach-Object {
+Get-ChildItem "$ModuleDirectory\Private" -Recurse -File | ForEach-Object {
     if ((Get-Content $_.FullName) -match 'Export-ModuleMember') {
         $ModuleManifestParams.FunctionsToExport += $_.BaseName
     }

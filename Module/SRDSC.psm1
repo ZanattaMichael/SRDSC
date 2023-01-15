@@ -2,7 +2,8 @@
 # Test if Git is Installed
 
 try {
-    git --version
+    # Must use .exe to not use git-override.
+    git.exe --version
 } catch {
     Throw "Git is required for SRDSC. Please install git."
     return

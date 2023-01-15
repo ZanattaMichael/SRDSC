@@ -131,6 +131,8 @@ Onboarding script to install DSC Pull Server, Datum, and ScriptRunner Scripts.
     $ErrorActionPreference = "Stop"
 
     $ModuleDirectory = Split-Path (Get-Module SRDSC).Path -Parent
+    $ComputerFQDN = [System.Net.Dns]::GetHostEntry([string]"localhost").HostName
+    $ComputerDomainName = (Get-WmiObject win32_computersystem).Domain
 
     #
     # Check PowerShell Window is evelated.
@@ -169,7 +171,7 @@ Onboarding script to install DSC Pull Server, Datum, and ScriptRunner Scripts.
         ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
         ScriptRunnerServerPath = $ScriptRunnerServerPath
         PullServerRegistrationKey = [guid]::newGuid().Guid
-        DSCPullServer = $ENV:COMPUTERNAME
+        DSCPullServer = "DSC.{0}" -f $ComputerDomainName
         DSCPullServerHTTP = $(
             if ($UseSelfSignedCertificate.IsPresent -or $PFXCertificatePath) {
                 'https'
@@ -200,7 +202,7 @@ Onboarding script to install DSC Pull Server, Datum, and ScriptRunner Scripts.
         # Provision a new certificate.
         # DNSName will be a dsc prefix with the userdns domain as a suffix: .contoso.local
         $params = @{
-            DNSName = "DSC.{0}" -f $ENV:USERDNSDOMAIN 
+            DNSName = "DSC.{0}" -f $ComputerDomainName
             CertStoreLocation = "cert:\LocalMachine\My"
         }
         $certificate = New-SelfSignedCertificate @params
@@ -260,6 +262,37 @@ Onboarding script to install DSC Pull Server, Datum, and ScriptRunner Scripts.
     xDscPullServerRegistration @xDscPullServerRegistrationParams
     Start-DscConfiguration -Path 'C:\Windows\Temp' -Wait -Verbose -Force    
 
+    #
+    # Use PowerShell Remoting and Invoke-DSCResource to create an C-NAME
+    
+    Write-Warning ("Please create a CNAME with 'DSC.{0}' pointing to '{1}'" -f $ComputerDomainName, $ComputerFQDN)
+
+    <#
+    $DSCResult = Invoke-Command -ComputerName $ComputerDomainName -ArgumentList $ComputerDomainName, $ComputerFQDN -ScriptBlock {
+        param($ComputerDomainName, $ComputerFQDN)
+
+        $ErrorActionPreference = 'Stop'
+
+        #
+        # Install an Load the DnsServerDsc Resource
+
+        Install-Module -Name 'DnsServerDsc'
+        Import-DscResource -ModuleName 'DnsServerDsc'
+
+        $params = @{
+            Name = 'DnsRecordCname'
+            Property = @{
+                ZoneName = $ComputerFQDN
+                Name = 'DSC'
+                HostNameAlias = $HostNameAlias
+            }
+            Method = 'Set'
+        }
+
+        Invoke-DscResource @params
+
+    }
+    #>
 
     #
     # Export the Configuration
