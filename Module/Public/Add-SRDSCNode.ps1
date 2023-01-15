@@ -118,7 +118,8 @@ function Add-SRDSCNode {
             $DSCResourceSettings = @{
                 RefreshMode = 'Pull'
                 RefreshFrequencyMins = 30
-                RebootNodeIfNeeded = $true          
+                RebootNodeIfNeeded = $true  
+                ConfigurationMode = 'ApplyAndAutoCorrect'        
             }
     
             #

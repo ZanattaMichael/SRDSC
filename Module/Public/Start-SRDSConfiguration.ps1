@@ -112,7 +112,7 @@ function Start-SRDSConfiguration {
 
     $MOFFileCopyParams = @{
         Destination = "\\{0}\{1}" -f 
-            $Global:SRDSC.DSCPullServer.DSCPullServerName, 
+            $ENV:COMPUTERNAME, 
             $Global:SRDSC.DSCPullServer.DSCPullServerMOFPath
         Force = $true
     }
@@ -124,7 +124,7 @@ function Start-SRDSConfiguration {
 
     $MOFResourceCopyParams = @{
         Destination = "\\{0}\{1}" -f 
-            $Global:SRDSC.DSCPullServer.DSCPullServerName, 
+            $ENV:COMPUTERNAME, 
             $Global:SRDSC.DSCPullServer.DSCPullServerResourceModules
         Force = $true
     }
