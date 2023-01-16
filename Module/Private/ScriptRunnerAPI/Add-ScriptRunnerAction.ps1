@@ -18,7 +18,9 @@ function Add-ScriptRunnerAction {
         $useScheduling,
         [Parameter(Mandatory, ParameterSetName='Scheduling')]
         [Int]
-        $RepeatMins
+        $RepeatMins,
+        [Switch]
+        $FailNonTerminatingErrors
     )
     
     $ErrorActionPreference = 'Stop'
@@ -74,6 +76,7 @@ function Add-ScriptRunnerAction {
             RT_IDLIST_Targets = [String]$ScriptRunnerTarget.value.ID
             RT_LIST_TargetNames = $ScriptRunnerTarget.value.DisplayName
             ScheduleEnd = "1999-01-01T00:00:00.000Z"
+            Insensitive = -not($FailNonTerminatingErrors.IsPresent)
         }
         UseDefaultCredentials = $true
         ContentType = "application/json"
