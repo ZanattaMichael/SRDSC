@@ -343,12 +343,12 @@ Onboarding script to install DSC Pull Server, Datum, and ScriptRunner Scripts.
     $addSRActionParams.ScriptRunnerTarget = $scriptRunnerTarget
 
     # Publish-SRAction - Triggers New-VirtualMachine.ps1 to be created
-    Add-ScriptRunnerAction -ScriptName 'Publish-SRAction.ps1' -RepeatMins 15 @addSRActionParams
+    Add-ScriptRunnerAction -ScriptName 'Publish-SRAction.ps1' -RepeatMins 15 -FailNonTerminatingErrors @addSRActionParams
     # Start-SRDSC - Triggers Datum Build and Deploy Script
     Add-ScriptRunnerAction -ScriptName 'Start-SRDSC.ps1' -RepeatMins 30 @addSRActionParams
     # New-VirtualMachine - Triggers automatic build and deploy
     $addSRActionParams.Remove('useScheduling')
-    Add-ScriptRunnerAction -ScriptName 'New-VirtualMachine.ps1' @addSRActionParams
+    Add-ScriptRunnerAction -ScriptName 'New-VirtualMachine.ps1' -FailNonTerminatingErrors @addSRActionParams
 
     #
     # Create the Action and Scheduled Tasks in ScriptRunner
