@@ -58,7 +58,7 @@ Formats Datum Configuration with the Node Template Configuration
                     Exp = { 
                         $ParameterName = ($_.ItemName -replace '(^\$\(\$Node.)','').Replace(')','')                        
                         [Array]$item = $NodeTemplateConfiguration | Where-Object {
-                            ($_.ParameterName -eq $ParameterName) -and ($_.YAMLValue -eq '%%SR_PARAM_OVERRIDE%%')
+                            ($_.ParameterName -eq $ParameterName) -and ($_.YAMLValue -match '^%%SR_PARAM_OVERRIDE')
                         }
                         $item.count -gt 0
                     }

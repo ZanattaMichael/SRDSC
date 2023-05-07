@@ -37,12 +37,19 @@ Imports the Node Template Configuration and returns a list contining static enti
     $FormattedYAMLTemplate = Format-YAMLObject -YAMLObject $YAMLTemplate -ObjectName 'FormattedYAMLTemplate'
 
     # Locate static entites that contain '%%' (%%SR_PARAM%% or %%SR_PARAM_OVERRIDE%%)
-    Find-YamlValue -YAMLObject $FormattedYAMLTemplate -ValueToFind '%%' | ForEach-Object {
+    Find-YamlValue -YAMLObject $FormattedYAMLTemplate -ValueToFind '^%%.+%%$' | ForEach-Object {
+            
+            # Identity if any expression was included within the Script Runner Parameter
+            # For example: %%SR_PARAM&EXP=[ValidateSet()]%%
+            # or: %%SR_PARAM&EXP=[ValidateSet()%%
+            $null = $_.Value -match '^%%SR_((PARAM)|(OVERRIDE))&EXP=(?<exp>.+)%%$'
+
             $PropertyList.Add([PSCustomObject]@{
                 YAMLPath = $_.Path
                 YAMLValue = $_.Value
                 # Parse the _YAMLPATH .NET path and convert to a PowerShell Parameter Label.
                 ParameterName = ($_.Path | ConvertYAMLPathTo-Parameter).ParameterLabel
+                ParameterExpression = $matches['exp']
             })
     }
 

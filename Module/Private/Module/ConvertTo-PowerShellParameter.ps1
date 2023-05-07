@@ -77,7 +77,15 @@ Converts the Datum and Template configuration into PowerShell Script Parameters.
 
             $null = $sb.AppendLine("`t[Parameter(Mandatory)]")
             $null = $sb.AppendFormat("`t#JSONData: {0} `n", $YAMLObject)
-            $null = $sb.AppendFormat("`t[ValidateNotNullOrEmpty()]`n")
+
+            # If there was custom expression validation on the parameter, add it in.
+            if ($null -eq $configuration.ParameterExpression) {
+                $null = $sb.AppendFormat("`t$($configuration.ParameterExpression)`n")
+            } else {
+                # Otherwise add 'NotNullOrEmpty()'
+                $null = $sb.AppendFormat("`t[ValidateNotNullOrEmpty()]`n")
+            }
+
             $null = $sb.AppendLine("`t[String]")
             $null = $sb.AppendFormat("`t`${0},`n", $configuration.ParameterName)
         }        
