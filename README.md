@@ -76,7 +76,7 @@ NetworkIpConfiguration:
     - InterfaceAlias: 0
       IpAddress: '%%SR_PARAM%%'
       Prefix: 24
-      Gateway: '%%SR_PARAM%%'
+      Gateway: '%%SR_PARAM&EXP=[ValidateSet(''192.168.1.254'',''192.168.2.254'')]%%'
       DnsServer:
         - '%%SR_PARAM%%'
         - '%%SR_PARAM%%'
@@ -88,6 +88,14 @@ The template file contains two types of parameters that require customization:
 %%SR_PARAM%% - This parameter specifies which DSC Resource parameters should be included as script parameters in New-SRDSCVirtualMachine. If the datum configuration elements such as Location or Baseline are present in the file structure, their corresponding values will be automatically filled in. It is important to note that the datum configuration takes precedence over other configurations. If no configuration is found, a static variable can be inputted.
 
 %%SR_PARAM_OVERRIDE%% - This parameter allows the user to include a static script parameter for a DSC resource name or a specific datum configuration element. In case a matching datum configuration element is detected, this parameter will take precedence over it and permit the user to provide their custom value.
+
+If you want to use custom PowerShell [parameter input validation](https://learn.microsoft.com/en-us/powershell/scripting/developer/cmdlet/validating-parameter-input?view=powershell-7.3), you can do so by using `&EXP=` to interpolate the expression. In case no validation is specified, the default [ValidateIsNullOrEmpty()] will be used. For Example:
+
+``` YAML
+# SVR-EXCH-1, SVR-DC-2
+NodeName: '%%SR_PARAM_OVERRIDE&EXP=[ValidatePattern(''^SVR-.+-[0-9]$'')]%%'
+Environment: '[x={ $File.Directory.BaseName } =]'
+```
 
 # Onboarding a New Machine into SRDSC
 
