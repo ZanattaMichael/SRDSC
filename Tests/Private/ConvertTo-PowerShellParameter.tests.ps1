@@ -1,4 +1,4 @@
-Describe "Testing ConvertTo-PowerShellParameter" -Skip {
+Describe "Testing ConvertTo-PowerShellParameter" {
 
      it "Should returns an empty string when no input is provided" {
 
@@ -32,25 +32,7 @@ Describe "Testing ConvertTo-PowerShellParameter" -Skip {
             )
         }
         $formattedDatumConfig = New-Object PSObject -Property $configurationTemplates
-        
-$expectedResult = @"
-[Parameter(Mandatory)]
-[ValidateSet('node1','node2')]
-[String]
-$NodeName,
-
-[Parameter(Mandatory)]
-#JSONData: {"Name":"VMName","LookupValue":"name"}
-[ValidateNotNullOrEmpty()]
-[String]
-$VMName,
-
-[Parameter(Mandatory)]
-#JSONData: {"Name":"VMSize","LookupValue":"size"}
-[ValidateNotNullOrEmpty()]
-[String]
-$VMSize,
-"@
+        $expectedResult = Import-MockData -CommandName 'ConvertTo-PowerShellParameter.test.2'
         
         $result = ConvertTo-PowerShellParameter -ConfigurationTemplates $formattedDatumConfig        
         $result | Should -Be $expectedResult
@@ -81,19 +63,7 @@ $VMSize,
             )
         }
         $formattedDatumConfig = New-Object PSObject -Property $configurationTemplates
-
-$expectedResult = @"
-[Parameter(Mandatory)]
-[ValidateSet('node1','node2')]
-[String]
-$NodeName,
-
-[Parameter(Mandatory)]
-#JSONData: {"Name":"VMName","LookupValue":"name"}
-[ValidateNotNullOrEmpty()]
-[String]
-$VMName,
-"@
+        $expectedResult = Import-MockData -CommandName 'ConvertTo-PowerShellParameter.test.3'
 
         $result = ConvertTo-PowerShellParameter -ConfigurationTemplates $formattedDatumConfig
         $result | Should -be $expectedResult
@@ -124,25 +94,7 @@ $VMName,
             )
         }
         $formattedDatumConfig = New-Object PSObject -Property $configurationTemplates
-
-$expectedResult = @"
-[Parameter(Mandatory)]
-[ValidateSet('node1','node2')]
-[String]
-$NodeName,
-
-[Parameter(Mandatory)]
-#JSONData: {"Name":"VMName","LookupValue":"name"}
-[ValidateNotNullOrEmpty()]
-[String]
-$VMName,
-
-[Parameter(Mandatory)]
-#JSONData: {"Name":"VMSize","LookupValue":"size"}
-[ValidatePattern('Standard_[A-Z]+')]
-[String]
-$VMSize,
-"@
+        $expectedResult = Import-MockData -CommandName 'ConvertTo-PowerShellParameter.test.4'
 
         $result = ConvertTo-PowerShellParameter -ConfigurationTemplates $formattedDatumConfig
         $result | Should -Be $expectedResult
