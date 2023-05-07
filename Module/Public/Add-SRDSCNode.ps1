@@ -55,17 +55,18 @@ function Add-SRDSCNode {
         Write-Host "[Add-SRDSCNode] PowerShell Remoting to $NodeName to Register LCM to $DSCPullServer"
     
         $RegistrationKey = $Global:SRDSC.DSCPullServer.PullServerRegistrationKey
-    
+        $CertificateByteArray = Get-Content -LiteralPath "{0}\PowerShell\SRDSC\PullServer.cer" -f $Env:ProgramData -Raw -Encoding Byte
+
         # Load the DSC Server Configuration Data
 
         $invokeCommandParams = @{
-            ArgumentList = $DSCPullServer,$Force,$RegistrationKey,$UseConfigurationIDs
+            ArgumentList = $DSCPullServer,$Force,$RegistrationKey,$UseConfigurationIDs,$CertificateByteArray
             ComputerName = $NodeName
             ErrorAction = 'Stop'
         }
 
         $NodeDSCLCMConfiguration = Invoke-Command @invokeCommandParams -ScriptBlock {
-            param($DSCPullServer, $Force, $RegistrationKey, $UseConfigurationIDs)
+            param($DSCPullServer, $Force, $RegistrationKey, $UseConfigurationIDs, $CertificateByteArray)
     
             #
             # Functions
@@ -107,7 +108,27 @@ function Add-SRDSCNode {
                 return Get-DscLocalConfigurationManager            
             }
     
-            
+            #
+            # Install the DSC Certificate
+            #
+
+            $certificateLocation = 'C:\Windows\Temp\SRDSCClientCertificate.cer'
+            $certificateStore = 'Cert:\LocalMachine\Root'
+
+            # Remove any existing certificate at the specified location
+            Remove-Item -LiteralPath $certificateLocation -Force -ErrorAction SilentlyContinue
+
+            # Save the certificate to the file system
+            [IO.File]::WriteAllBytes($certificateLocation, $CertificateByteArray)
+
+            # Remove any existing certificates with matching subject name from the root store
+            Get-ChildItem $certificateStore -Recurse | 
+                Where-Object {$_.Subject -like "*DSC.$ENV:USERDNSDOMAIN"} | 
+                    Remove-Item -Force -Confirm:$false
+
+            # Import the certificate into the root store
+            Import-Certificate -FilePath $certificateLocation -CertStoreLocation $certificateStore
+
             #
             # Compile the DSC Resource
             #
@@ -148,7 +169,7 @@ function Add-SRDSCNode {
             [DSCLocalConfigurationManager()]
             configuration PullClientConfigNames
             {
-    
+
                 Node localhost
                 {
                         
@@ -181,24 +202,21 @@ function Add-SRDSCNode {
         if ($UseConfigurationIDs.IsPresent) {
     
             Write-Host "[Add-SRDSCNode] Writing ConfigurationID of Node as [SecureString]"
-    
-            #
-            # The LCM Configuration is needed to register the ConfigurationID.
-            # This is used by the datum configuration to rename the mof files
+
+            # Import existing node registrations from file, if any
             $DatumLCMConfiguration = @()
-        
             if (Test-Path -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile) {
-                $NodeRegistrationFile += Import-Clixml -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile
-                # Filter out the existing node node. This enable rewrites
-                $DatumLCMConfiguration = @()
-                $DatumLCMConfiguration += $NodeRegistrationFile | Where-Object {$_.NodeName -ne $NodeName}
+                $NodeRegistrationFile = Import-Clixml -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile
+                # Filter out the existing node to enable rewrites
+                $DatumLCMConfiguration = $NodeRegistrationFile | Where-Object {$_.NodeName -ne $NodeName}
             }
-            
+
+            # Add the new node registration to the configuration list
             $DatumLCMConfiguration += [PSCustomObject]@{
                 NodeName = $NodeName
                 ConfigurationID = [String]$NodeDSCLCMConfiguration.ConfigurationID | ConvertTo-SecureString -AsPlainText -Force
             }
-        
+
             # Export it again
             $DatumLCMConfiguration | Export-Clixml -LiteralPath $Global:SRDSC.DatumModule.NodeRegistrationFile
         

@@ -161,28 +161,8 @@ Onboarding script to install DSC Pull Server, Datum, and ScriptRunner Scripts.
     # Create Configuration file to store the datum module information
 
     $ConfigurationPath = "{0}\PowerShell\SRDSC\Configuration.clixml" -f $Env:ProgramData
+    $ClientCertificatePath = "{0}\PowerShell\SRDSC\PullServer.cer" -f $Env:ProgramData
     $ConfigurationParentPath = Split-Path $ConfigurationPath -Parent
-
-    #
-    # Set the Global Vars
-
-    $SRConfiguration = @{
-        DatumModulePath = $DatumModulePath
-        ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
-        ScriptRunnerServerPath = $ScriptRunnerServerPath
-        PullServerRegistrationKey = [guid]::newGuid().Guid
-        DSCPullServer = "DSC.{0}" -f $ComputerDomainName
-        DSCPullServerHTTP = $(
-            if ($UseSelfSignedCertificate.IsPresent -or $PFXCertificatePath) {
-                'https'
-            } else {
-                'http'
-            }
-        ) 
-        ScriptRunnerURL = $ScriptRunnerURL      
-    }
-
-    Set-ModuleParameters @SRConfiguration
 
     #
     # Load SSL Certificates
@@ -211,6 +191,7 @@ Onboarding script to install DSC Pull Server, Datum, and ScriptRunner Scripts.
 
     #
     # If the SSL Certificate Path parameter was specified, import the cert
+
     if ($PFXCertificatePath) {
 
         #
@@ -225,42 +206,60 @@ Onboarding script to install DSC Pull Server, Datum, and ScriptRunner Scripts.
         $certificate = Import-PfxCertificate @params
     }
 
-    $xDscPullServerRegistrationParams = @{
+    #
+    # Set the Global Vars
 
-        NodeName = 'localhost'
-        
-        xDscWebServiceRegistrationParams = @{
-
-            RegistrationKey = $SRConfiguration.PullServerRegistrationKey
-            WebServerFilePath = $PullWebServerPath
-            CertificateThumbPrint = $certificate.Thumbprint
-
-        }
-
-        xDscDatumModuleRegistrationParams = @{
-            
-            DatumModulePath = $Global:SRDSC.DatumModule.DatumModulePath
-            DatumModuleTemplatePath = "{0}\{1}" -f $Global:SRDSC.DatumModule.DatumTemplates, (Split-Path $Global:SRDSC.ScriptRunner.NodeTemplateFile -Leaf)
-            SRDSCTemplateFile = $Global:SRDSC.ScriptRunner.NodeTemplateFile
-
-        }
-
-        xDscSRDSCModuleRegistrationParams = @{
-            ConfigurationParentPath = $ConfigurationParentPath
-            ScriptRunnerDSCRepository = $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository
-            Files = @(
-                "{0}\Template\Publish-SRAction.ps1" -f $ModuleDirectory
-                "{0}\Template\Start-SRDSC.ps1" -f $ModuleDirectory
-                "{0}\Template\New-VirtualMachine.ps1" -f $ModuleDirectory
-            )
-        }
-
-        OutputPath = 'C:\Windows\Temp\'
-
+    $SRConfiguration = @{
+        DatumModulePath = $DatumModulePath
+        ScriptRunnerModulePath = Split-Path (Get-Module SRDSC).Path -Parent
+        ScriptRunnerServerPath = $ScriptRunnerServerPath
+        PullServerRegistrationKey = [guid]::newGuid().Guid
+        DSCPullServer = "DSC.{0}" -f $ComputerDomainName
+        DSCPullServerHTTP = $(
+            if ($UseSelfSignedCertificate.IsPresent -or $PFXCertificatePath) {
+                'https'
+            } else {
+                'http'
+            }
+        ) 
+        ScriptRunnerURL = $ScriptRunnerURL
+        CertificateThumbPrint = $certificate.Thumbprint      
     }
 
+    Set-ModuleParameters @SRConfiguration
+
+    #
+    # Define a hashtable containing parameters for registering the local node with a DSC pull server
+
+    $xDscPullServerRegistrationParams = @{
+        NodeName = 'localhost' # Specify the name of the local node to register
+        xDscWebServiceRegistrationParams = @{
+            RegistrationKey = $SRConfiguration.PullServerRegistrationKey # Specify the registration key for the pull server
+            WebServerFilePath = $PullWebServerPath # Specify the path to the pull server web service endpoint
+            CertificateThumbPrint = $certificate.Thumbprint # Specify the thumbprint of the certificate to use for authentication
+        }
+        xDscDatumModuleRegistrationParams = @{
+            DatumModulePath = $Global:SRDSC.DatumModule.DatumModulePath # Specify the path to the datum module used by the script runner
+            DatumModuleTemplatePath = "{0}\{1}" -f $Global:SRDSC.DatumModule.DatumTemplates, (Split-Path $Global:SRDSC.ScriptRunner.NodeTemplateFile -Leaf) # Specify the path to the datum module template used by the script runner
+            SRDSCTemplateFile = $Global:SRDSC.ScriptRunner.NodeTemplateFile # Specify the path to the script runner node template file
+        }
+        xDscSRDSCModuleRegistrationParams = @{
+            ConfigurationParentPath = $ConfigurationParentPath # Specify the path to the parent configuration directory for the script runner
+            ScriptRunnerDSCRepository = $Global:SRDSC.ScriptRunner.ScriptRunnerDSCRepository # Specify the path to the script runner DSC repository
+            Files = @(
+                "{0}\Template\Publish-SRAction.ps1" -f $ModuleDirectory # Specify the path to the Publish-SRAction.ps1 script used by the script runner
+                "{0}\Template\Start-SRDSC.ps1" -f $ModuleDirectory # Specify the path to the Start-SRDSC.ps1 script used by the script runner
+                "{0}\Template\New-VirtualMachine.ps1" -f $ModuleDirectory # Specify the path to the New-VirtualMachine.ps1 script used by the script runner
+            )
+        }
+        OutputPath = 'C:\Windows\Temp\' # Specify the output path for the registration files
+    }
+    
+    # Register the local node with a DSC pull server using the parameters defined in the $xDscPullServerRegistrationParams hashtable
     xDscPullServerRegistration @xDscPullServerRegistrationParams
-    Start-DscConfiguration -Path 'C:\Windows\Temp' -Wait -Verbose -Force    
+
+    # Start a DSC configuration at the specified path, wait for it to complete, and output verbose messages
+    Start-DscConfiguration -Path 'C:\Windows\Temp' -Wait -Verbose -Force
 
     #
     # Use PowerShell Remoting and Invoke-DSCResource to create an C-NAME
@@ -297,6 +296,13 @@ Onboarding script to install DSC Pull Server, Datum, and ScriptRunner Scripts.
     #
     # Export the Configuration
     ([PSCustomObject]$SRConfiguration) | Export-Clixml -LiteralPath $ConfigurationPath
+
+    #
+    # Export the Public Certificate to ProgramData\PowerShell\SRDSC
+    # This will be used to onboard nodes into the DSC Pull Server
+
+    (Get-ChildItem Cert:\LocalMachine\ -Recurse | Where-Object {$_.Subject -like ('*DSC.{0}*' -f $ENV:USERDNSDOMAIN)})[0] | 
+        Export-Certificate -Force -FilePath $ClientCertificatePath
 
     #
     # Clone the DSCWorkshop PowerShell Module (contains Datum)
