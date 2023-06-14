@@ -46,7 +46,8 @@ $params = @{
     PullServerRegistrationKey = $CliXML.PullServerRegistrationKey
     DSCPullServer = $CliXML.DSCPullServer
     DSCPullServerHTTP = $CliXML.DSCPullServerHTTP
-    ScriptRunnerURL = $CliXML.ScriptRunnerURL    
+    ScriptRunnerURL = $CliXML.ScriptRunnerURL
+    CertificateThumbprint = $CliXML.CertificateThumbprint    
 }
 
 # Load the Global Settings
@@ -77,7 +78,10 @@ Set's Global Configuration paramters used by the SRDSC Module.
         $DSCPullServerHTTP,
         [Parameter(Mandatory)]
         [String]
-        $ScriptRunnerURL        
+        $ScriptRunnerURL,
+        [Parameter(Mandatory)]
+        [String]
+        $CertificateThumbprint        
     )
 
     $Global:SRDSC = [PSCustomObject]@{
@@ -98,7 +102,8 @@ Set's Global Configuration paramters used by the SRDSC Module.
             DSCPullServerMOFPath = 'C$\Program Files\WindowsPowerShell\DscService\Configuration\'
             DSCPullServerResourceModules = 'C$\Program Files\WindowsPowerShell\DscService\Modules\'
             DSCPullServerWebAddress = '{0}://{1}:8080' -f $DSCPullServerHTTP, $DSCPullServer
-            PullServerRegistrationKey = $PullServerRegistrationKey          
+            PullServerRegistrationKey = $PullServerRegistrationKey
+            CertificateThumbprint = $CertificateThumbprint
         }
 
         DatumModule = [PSCustomObject]@{

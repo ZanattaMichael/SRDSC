@@ -20,7 +20,8 @@ Describe "Testing Set-Module Parameters" {
             PullServerRegistrationKey = 'MOCK'
             DSCPullServer = 'MOCK'
             DSCPullServerHTTP = 'https'
-            ScriptRunnerURL = 'MOCK'   
+            ScriptRunnerURL = 'MOCK'
+            CertificateThumbPrint = 'MOCK'   
         }
 
         #
@@ -41,6 +42,7 @@ Describe "Testing Set-Module Parameters" {
         $Global:SRDSC.DSCPullServer.DSCPullServerResourceModules | Should -Not -BeNullorEmpty
         $Global:SRDSC.DSCPullServer.DSCPullServerWebAddress | Should -Not -BeNullorEmpty
         $Global:SRDSC.DSCPullServer.PullServerRegistrationKey | Should -Not -BeNullorEmpty
+        $Global:SRDSC.DSCPullServer.CertificateThumbPrint | Should -Not -BeNullOrEmpty
 
         $Global:SRDSC.DatumModule.DatumModulePath | Should -Not -BeNullOrEmpty
         $Global:SRDSC.DatumModule.DatumTemplates | Should -Not -BeNullOrEmpty
