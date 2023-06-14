@@ -55,6 +55,24 @@ Converts the Datum and Template configuration into PowerShell Script Parameters.
     Process {
 
         #
+        # If the configuration is null, throw an error.
+        if ($null -eq $ConfigurationTemplates) {
+            throw "ConfigurationTemplates cannot be null"
+        }
+
+        #
+        # If the DatumConfiguration is null, throw an error.
+        if ($null -eq $ConfigurationTemplates.DatumConfiguration) {
+            throw "ConfigurationTemplates.DatumConfiguration cannot be null"
+        }
+
+        #
+        # If the TemplateConfiguration is null, throw an error.
+        if ($null -eq $ConfigurationTemplates.TemplateConfiguration) {
+            throw "ConfigurationTemplates.TemplateConfiguration cannot be null"
+        }
+
+        #
         # NodeTemplateConfiguration items have higher precidence then automatic values. 
         # However it's possible to define positions within the configuration.
 
