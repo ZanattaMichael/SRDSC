@@ -2,30 +2,16 @@
 function ConvertTo-PowerShellParameter {
 <#
 .Description
-This function takes the formatted Datum (Containing enumerated values) and Template configuration
-and constructs PowerShell parameters that can be used by the 'New-VirtualMachine' PowerShell Script.
-It's important to understand that datum is the authortative winner for duplicate items with the node template
-file, unless the node template has '%%SR_PARAM_OVERRIDE%%' set in the value.
-This is to address pre-existing datum paramters (i.e NodeName) that should be prompted for user input,
-otherwise the script would only allow you to select existing nodes that are present in the configuration.
-(Not useful, when your trying to create a new machine)
+This function is responsible for creating PowerShell parameters that can be used by the 'New-VirtualMachine' PowerShell script. It takes in the formatted Datum, which contains enumerated values, and the Template configuration.
 
-For it to accuratly to join the parameters together, it needs to perform the following logic:
+It's important to note that the Datum is considered the authoritative winner for duplicate items with the node template file, unless the node template has '%%SR_PARAM_OVERRIDE%%' set in the value. This is done to address pre-existing datum parameters (such as NodeName) that should be prompted for user input. Otherwise, the script would only allow you to select existing nodes that are present in the configuration, which isn't useful when trying to create a new machine.
 
-1. Retrive all Datum Configuration Paramters that IS AUTHORATATIVE (i.e It could have a duplicate, and if it does
-   the node template configuration dosen't have 'SR_PARAM_OVERRIDE' specified.)
-2. Retrive all the Node Template Configuration Parameters that aren't authoritative (or not in the authoritative list).
-3. Iterate through all the enumerate non-authoritative Node Template Configuration Paramters
-   and construct the PowerShell parameter.
-   
-   During this process it also serializes the (YAML) the Parameter Name and PowerShell .NET property
-   path the the matching object as JSON.
+To accurately join the parameters together, the function performs the following logic:
 
-   Note The generated script can uses this data to locate and set the paramter value within the Node Template Configuration.
-   (See Get-ASScriptParameters)
-   
-4. Iterate through all the authoritative datum configuration paramters and construct paramters
-   with prefilled data stored as values within the ValidateSet attribute
+1. Retrieve all Datum Configuration Parameters that are authoritative (i.e., they could have a duplicate, and if they do, the node template configuration doesn't have 'SR_PARAM_OVERRIDE' specified).
+2. Retrieve all the Node Template Configuration Parameters that aren't authoritative (or not in the authoritative list).
+3. Iterate through all the non-authoritative Node Template Configuration Parameters and construct the PowerShell parameter. During this process, it also serializes the YAML Parameter Name and PowerShell .NET property path to the matching object as JSON. Note that the generated script can use this data to locate and set the parameter value within the Node Template Configuration (see Get-ASScriptParameters).
+4. Iterate through all the authoritative datum configuration parameters and construct parameters with prefilled data stored as values within the ValidateSet attribute.
 5. Return the string back to the caller.
 
 .PARAMETER ConfigurationTemplates
@@ -95,7 +81,15 @@ Converts the Datum and Template configuration into PowerShell Script Parameters.
 
             $null = $sb.AppendLine("`t[Parameter(Mandatory)]")
             $null = $sb.AppendFormat("`t#JSONData: {0} `n", $YAMLObject)
-            $null = $sb.AppendFormat("`t[ValidateNotNullOrEmpty()]`n")
+
+            # If there was custom expression validation on the parameter, add it in.
+            if ($null -eq $configuration.ParameterExpression) {
+                $null = $sb.AppendFormat("`t$($configuration.ParameterExpression)`n")
+            } else {
+                # Otherwise add 'NotNullOrEmpty()'
+                $null = $sb.AppendFormat("`t[ValidateNotNullOrEmpty()]`n")
+            }
+
             $null = $sb.AppendLine("`t[String]")
             $null = $sb.AppendFormat("`t`${0},`n", $configuration.ParameterName)
         }        

@@ -1,52 +1,103 @@
-Describe "ConvertTo-PowerShellParameter" {
+#This is a PowerShell script that tests the ConvertTo-PowerShellParameter function. 
+#The script uses the Pester testing framework to define test cases for the function.
+Describe "Testing ConvertTo-PowerShellParameter" {
 
-    BeforeAll {
-        $configurationTemplates = @{
-            DatumConfiguration = @(
-                @{
-                    ParameterName = "NodeName"
-                    ParameterValues = "Node1", "Node2", "Node3"
-                    isOverwritten = $false
-                },
-                @{
-                    ParameterName = "IPAddress"
-                    ParameterValues = "10.0.0.1", "10.0.0.2", "10.0.0.3"
-                    isOverwritten = $true
-                }
-            )
-            TemplateConfiguration = @(
-                @{
-                    ParameterName = "VMName"
-                    YAMLPath = "VirtualMachine/Name"
-                },
-                @{
-                    ParameterName = "VMSize"
-                    YAMLPath = "VirtualMachine/Size"
-                }
-            )
+    Context "when given a valid input" {
+
+        it "should Generate the expected Parameters for a given input." {
+
+            $configurationTemplates = @{
+                DatumConfiguration = @(
+                    @{
+                        ParameterName = "NodeName"
+                        ParameterValues = @("node1", "node2")
+                        IsOverwritten = $false
+                    }
+                )
+                TemplateConfiguration = @(
+                    @{
+                        ParameterName = "VMName"
+                        YAMLPath = "name"
+                        ParameterExpression = ""
+                    },
+                    @{
+                        ParameterName = "VMSize"
+                        YAMLPath = "size"
+                        ParameterExpression = "[ValidateNotNullOrEmpty()]"
+                    }
+                )
+            }
+            $formattedDatumConfig = New-Object PSObject -Property $configurationTemplates
+            $expectedResult = Import-MockData -CommandName 'ConvertTo-PowerShellParameter.test.2'
+            
+            $result = ConvertTo-PowerShellParameter -ConfigurationTemplates $formattedDatumConfig        
+            $result | Should -Be $expectedResult
+    
         }
-    }
+    
 
-    It "returns a string of PowerShell parameters" {
-        $result = ConvertTo-PowerShellParameter -ConfigurationTemplates $configurationTemplates
-        $result | Should -BeOfType [String]
-    }
-
-    Context "when given valid input" {
-        It "returns a string with mandatory parameters" {
-            $result = ConvertTo-PowerShellParameter -ConfigurationTemplates $configurationTemplates
-            $result | Should -Match "`t\[Parameter\(Mandatory\)\]"
+        it "should handle duplicate parameters in the input." {
+    
+            $configurationTemplates = @{
+                DatumConfiguration = @(
+                    @{
+                        ParameterName = "NodeName"
+                        ParameterValues = @("node1", "node2")
+                        IsOverwritten = $false
+                    }
+                )
+                TemplateConfiguration = @(
+                    @{
+                        ParameterName = "VMName"
+                        YAMLPath = "name"
+                        ParameterExpression = ""
+                    },
+                    @{
+                        ParameterName = "NodeName"
+                        YAMLPath = "name"
+                        ParameterExpression = ""
+                    }
+                )
+            }
+            $formattedDatumConfig = New-Object PSObject -Property $configurationTemplates
+            $expectedResult = Import-MockData -CommandName 'ConvertTo-PowerShellParameter.test.3'
+    
+            $result = ConvertTo-PowerShellParameter -ConfigurationTemplates $formattedDatumConfig
+            $result | Should -be $expectedResult
+    
+        }
+         
+        it "should correctly include custom validation expressions for parameters that have them" {
+    
+            $configurationTemplates = @{
+                DatumConfiguration = @(
+                    @{
+                        ParameterName = "NodeName"
+                        ParameterValues = @("node1", "node2")
+                        IsOverwritten = $false
+                    }
+                )
+                TemplateConfiguration = @(
+                    @{
+                        ParameterName = "VMName"
+                        YAMLPath = "name"
+                        ParameterExpression = ""
+                    },
+                    @{
+                        ParameterName = "VMSize"
+                        YAMLPath = "size"
+                        ParameterExpression = "[ValidatePattern('Standard_[A-Z]+')]"
+                    }
+                )
+            }
+            $formattedDatumConfig = New-Object PSObject -Property $configurationTemplates
+            $expectedResult = Import-MockData -CommandName 'ConvertTo-PowerShellParameter.test.4'
+    
+            $result = ConvertTo-PowerShellParameter -ConfigurationTemplates $formattedDatumConfig
+            $result | Should -Be $expectedResult
+    
         }
 
-        It "returns a string with ValidateSet attributes" {
-            $result = ConvertTo-PowerShellParameter -ConfigurationTemplates $configurationTemplates
-            $result | Should -Match "`t\[ValidateSet\('.+'\)\]*"
-        }
-
-        It "returns a string with String data type" {
-            $result = ConvertTo-PowerShellParameter -ConfigurationTemplates $configurationTemplates
-            $result | Should -Match "`t\[String\]"
-        }
     }
 
     Context "when given invalid input" {
@@ -64,4 +115,5 @@ Describe "ConvertTo-PowerShellParameter" {
             { ConvertTo-PowerShellParameter -ConfigurationTemplates $configurationTemplates } | Should -Throw
         }
     }
+
 }
