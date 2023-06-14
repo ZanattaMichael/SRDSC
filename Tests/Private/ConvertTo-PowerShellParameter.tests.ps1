@@ -101,17 +101,47 @@ Describe "Testing ConvertTo-PowerShellParameter" {
     }
 
     Context "when given invalid input" {
+
         It "throws an error when ConfigurationTemplates is null" {
             { ConvertTo-PowerShellParameter -ConfigurationTemplates $null } | Should -Throw
         }
 
+        It "throws an error when DatumConfiguration contains an empty array" {
+
+            $configurationTemplates = @{
+                DatumConfiguration = @()
+                TemplateConfiguration = @('value1', 'value2')
+            }
+
+            { ConvertTo-PowerShellParameter -ConfigurationTemplates $configurationTemplates } | Should -Throw
+        }
+
+        It "throws an error when TemplateConfiguration contains an empty array" {
+
+            $configurationTemplates = @{
+                DatumConfiguration = @('value1', 'value2')
+                TemplateConfiguration = @()
+            }
+
+            { ConvertTo-PowerShellParameter -ConfigurationTemplates $configurationTemplates } | Should -Throw
+        }        
+
         It "throws an error when DatumConfiguration is null" {
-            $configurationTemplates.DatumConfiguration = $null
+
+            $configurationTemplates = @{
+                DatumConfiguration = $null
+                TemplateConfiguration = 'value1'
+            }
+
             { ConvertTo-PowerShellParameter -ConfigurationTemplates $configurationTemplates } | Should -Throw
         }
 
         It "throws an error when TemplateConfiguration is null" {
-            $configurationTemplates.TemplateConfiguration = $null
+            $configurationTemplates = @{
+                DatumConfiguration = 'value1'
+                TemplateConfiguration = $null
+            }
+
             { ConvertTo-PowerShellParameter -ConfigurationTemplates $configurationTemplates } | Should -Throw
         }
     }

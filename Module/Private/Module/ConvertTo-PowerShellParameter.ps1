@@ -48,13 +48,13 @@ Converts the Datum and Template configuration into PowerShell Script Parameters.
 
         #
         # If the DatumConfiguration is null, throw an error.
-        if ($null -eq $ConfigurationTemplates.DatumConfiguration) {
+        if (($null -eq $ConfigurationTemplates.DatumConfiguration) -or ($ConfigurationTemplates.DatumConfiguration.Count -eq 0)) {
             throw "ConfigurationTemplates.DatumConfiguration cannot be null"
         }
 
         #
         # If the TemplateConfiguration is null, throw an error.
-        if ($null -eq $ConfigurationTemplates.TemplateConfiguration) {
+        if (($null -eq $ConfigurationTemplates.TemplateConfiguration) -or ($ConfigurationTemplates.TemplateConfiguration.Count -eq 0)) {
             throw "ConfigurationTemplates.TemplateConfiguration cannot be null"
         }
 
