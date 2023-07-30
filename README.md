@@ -39,6 +39,7 @@ _Please note that this Module is not supported on PowerShell Core._
 ## Quick Start Guide (Self-Signed Certificate)
 
 _(On the ScriptRunner Server)_
+1. `Install-Module PowerShell-YAML, xPSDesiredStateConfiguration`
 1. `Install-Module SRDSC -AllowPrerelease`
 1. `Initialize-SRDSC -DatumModulePath C:\Datum -PullWebServerPath C:\Inetpub -ScriptRunnerServerPath 'C:\ProgramData\ScriptRunner' -ScriptRunnerURL http://SCRIPTRUNNER01/ -UseSelfSignedCertificate -ScriptRunnerSACredential (Get-Credential)`
 
